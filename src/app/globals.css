@@ -1,0 +1,499 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Dark Academia Color Palette */
+:root {
+  --radius: 0.625rem;
+  
+  /* Deep mystical backgrounds */
+  --background: #0d0b09;
+  --foreground: #e8dcc4;
+  
+  /* Aged parchment colors */
+  --card: #1a1612;
+  --card-foreground: #e8dcc4;
+  
+  --popover: #1a1612;
+  --popover-foreground: #e8dcc4;
+  
+  /* Gold accent for magic */
+  --primary: #c9a227;
+  --primary-foreground: #0d0b09;
+  
+  /* Deep burgundy/wine */
+  --secondary: #3d1a1a;
+  --secondary-foreground: #e8dcc4;
+  
+  /* Muted earth tones */
+  --muted: #2a231c;
+  --muted-foreground: #a89880;
+  
+  /* Accent - mystical purple */
+  --accent: #2d1f3d;
+  --accent-foreground: #d4c4f0;
+  
+  --destructive: #5c1a1a;
+  
+  /* Borders and inputs */
+  --border: #3d3428;
+  --input: #2a231c;
+  --ring: #c9a227;
+  
+  /* Chart colors - mystical palette */
+  --chart-1: #c9a227;
+  --chart-2: #8b4513;
+  --chart-3: #6b4423;
+  --chart-4: #d4c4f0;
+  --chart-5: #3d1a1a;
+  
+  /* Sidebar */
+  --sidebar: #1a1612;
+  --sidebar-foreground: #e8dcc4;
+  --sidebar-primary: #c9a227;
+  --sidebar-primary-foreground: #0d0b09;
+  --sidebar-accent: #2d1f3d;
+  --sidebar-accent-foreground: #d4c4f0;
+  --sidebar-border: #3d3428;
+  --sidebar-ring: #c9a227;
+}
+
+.dark {
+  --background: #0d0b09;
+  --foreground: #e8dcc4;
+  --card: #1a1612;
+  --card-foreground: #e8dcc4;
+  --popover: #1a1612;
+  --popover-foreground: #e8dcc4;
+  --primary: #c9a227;
+  --primary-foreground: #0d0b09;
+  --secondary: #3d1a1a;
+  --secondary-foreground: #e8dcc4;
+  --muted: #2a231c;
+  --muted-foreground: #a89880;
+  --accent: #2d1f3d;
+  --accent-foreground: #d4c4f0;
+  --destructive: #5c1a1a;
+  --border: #3d3428;
+  --input: #2a231c;
+  --ring: #c9a227;
+  --chart-1: #c9a227;
+  --chart-2: #8b4513;
+  --chart-3: #6b4423;
+  --chart-4: #d4c4f0;
+  --chart-5: #3d1a1a;
+  --sidebar: #1a1612;
+  --sidebar-foreground: #e8dcc4;
+  --sidebar-primary: #c9a227;
+  --sidebar-primary-foreground: #0d0b09;
+  --sidebar-accent: #2d1f3d;
+  --sidebar-accent-foreground: #d4c4f0;
+  --sidebar-border: #3d3428;
+  --sidebar-ring: #c9a227;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-crimson), Georgia, serif;
+  }
+}
+
+/* Custom Fonts using CSS variables */
+.font-cinzel {
+  font-family: var(--font-cinzel), serif;
+}
+
+.font-crimson {
+  font-family: var(--font-crimson), Georgia, serif;
+}
+
+.font-medieval {
+  font-family: var(--font-medieval), cursive;
+}
+
+.font-great-vibes {
+  font-family: var(--font-great-vibes), cursive;
+}
+
+/* Magical Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 5px currentColor);
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 20px currentColor);
+  }
+}
+
+@keyframes candle-flicker {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.98);
+  }
+  75% {
+    opacity: 0.95;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes scroll-unroll {
+  0% {
+    clip-path: inset(0 50% 0 50%);
+    opacity: 0;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes writing-appear {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes ink-spread {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+/* Journal Writing Animations */
+@keyframes ink-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(5px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes quill-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ink-drop {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translateY(10px);
+  }
+}
+
+/* Animation utility classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-candle-flicker {
+  animation: candle-flicker 0.5s ease-in-out infinite;
+}
+
+.animate-scroll-unroll {
+  animation: scroll-unroll 1.5s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-writing-appear {
+  animation: writing-appear 2s ease-out forwards;
+}
+
+.animate-particle-rise {
+  animation: particle-rise 8s linear infinite;
+}
+
+.animate-ink-spread {
+  animation: ink-spread 1s ease-out forwards;
+}
+
+/* Journal animation utilities */
+.animate-ink-appear {
+  animation: ink-appear 0.15s ease-out forwards;
+}
+
+.animate-quill-blink {
+  animation: quill-blink 1s step-end infinite;
+}
+
+.animate-ink-drop {
+  animation: ink-drop 0.5s ease-out forwards;
+}
+
+/* Delay utilities */
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+.animation-delay-700 { animation-delay: 700ms; }
+.animation-delay-1000 { animation-delay: 1000ms; }
+.animation-delay-1500 { animation-delay: 1500ms; }
+.animation-delay-2000 { animation-delay: 2000ms; }
+
+/* Parchment texture effect */
+.parchment-bg {
+  background: linear-gradient(
+    135deg,
+    #d4c4a8 0%,
+    #e8dcc4 25%,
+    #c9b896 50%,
+    #e8dcc4 75%,
+    #d4c4a8 100%
+  );
+  background-size: 200% 200%;
+}
+
+/* Magical glow effects */
+.magical-glow {
+  text-shadow: 
+    0 0 10px rgba(201, 162, 39, 0.5),
+    0 0 20px rgba(201, 162, 39, 0.3),
+    0 0 30px rgba(201, 162, 39, 0.2);
+}
+
+.candle-glow {
+  box-shadow: 
+    0 0 10px rgba(255, 200, 100, 0.3),
+    0 0 20px rgba(255, 200, 100, 0.2),
+    0 0 40px rgba(255, 150, 50, 0.1);
+}
+
+/* Scroll styling */
+.scroll-edge {
+  background: linear-gradient(90deg, #8b4513 0%, #a0522d 50%, #8b4513 100%);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Wax seal effect */
+.wax-seal {
+  background: radial-gradient(circle at 30% 30%, #8b2323 0%, #5c1a1a 50%, #3d0f0f 100%);
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.4),
+    inset 0 2px 4px rgba(255,255,255,0.1);
+}
+
+/* Mystical border */
+.mystical-border {
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #c9a227, #8b4513, #c9a227) 1;
+}
+
+/* Custom scrollbar for dark academia theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1612;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #8b4513, #c9a227);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a0522d, #d4a830);
+}
+
+/* Spell animations */
+@keyframes spell-flash {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes spell-cast {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes mana-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.animate-spell-flash {
+  animation: spell-flash 0.5s ease-out forwards;
+}
+
+.animate-spell-cast {
+  animation: spell-cast 1s ease-out forwards;
+}
+
+.animate-mana-pulse {
+  animation: mana-pulse 2s ease-in-out infinite;
+}
+
+/* Custom scrollbar for spellbook */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #8b4513, #c9a227);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a0522d, #d4a830);
+}
+
+/* Gradient radial for effects */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}

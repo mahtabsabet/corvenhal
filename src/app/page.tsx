@@ -20,7 +20,7 @@ import { JournalEntry } from '@/components/journal-writing'
 import { Spellbook } from '@/components/spellbook'
 import { SpellToolbar } from '@/components/spell-toolbar'
 import { Spell, PotionRecipe, getStartingSpells } from '@/lib/spells'
-import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes } from '@/lib/game-time'
+import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForSlot, TimeSlot } from '@/lib/game-time'
 import { SaveGame, SAVE_VERSION, saveGame, loadGame, clearSave } from '@/lib/save-game'
 import { RestartModal } from '@/components/restart-modal'
 import { NamePrompt, AcceptanceScroll } from '@/components/intro-screens'
@@ -137,12 +137,46 @@ export default function Home() {
     saveGame(saveData)
   }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime])
 
-  // Real-time game clock: 10 in-game minutes per 7 real seconds
+  // Real-time game clock: 10 in-game minutes per 7 real seconds.
+  // Only ticks from day 1 (Moonday morning, after the player first wakes up).
+  // Freezes at class start times so the player can never miss a class.
+  // Time resumes once the player leaves class (handleLeaveClass adds 2 hours).
   useEffect(() => {
     if (gameState !== 'school') return
 
+    // The three class-start boundaries (hour, slot name)
+    const CLASS_STARTS: { hour: number; slot: TimeSlot }[] = [
+      { hour: 6,  slot: 'morning'   },
+      { hour: 12, slot: 'afternoon' },
+      { hour: 18, slot: 'evening'   },
+    ]
+
     const ticker = setInterval(() => {
-      setGameTime(prev => advanceMinutes(prev, 10))
+      setGameTime(prev => {
+        // Don't tick until day 1 (the player has slept and woken up at school)
+        if (prev.dayNumber < 1) return prev
+
+        // Freeze if we're sitting exactly at a class start time
+        if (CLASS_STARTS.some(({ hour, slot }) =>
+          prev.hour === hour && prev.minute === 0 && getClassForSlot(prev.day, slot) !== null
+        )) return prev
+
+        // Advance 10 game minutes
+        const next = advanceMinutes(prev, 10)
+
+        // If the tick crossed a class-start boundary, snap to that boundary
+        // (e.g. 5:53 → would become 6:03, but snaps to 6:00 instead)
+        // Only possible within the same day; 10-min ticks never skip midnight
+        if (prev.day === next.day) {
+          for (const { hour, slot } of CLASS_STARTS) {
+            if (prev.hour < hour && next.hour >= hour && getClassForSlot(prev.day, slot) !== null) {
+              return { ...prev, hour, minute: 0 }
+            }
+          }
+        }
+
+        return next
+      })
     }, 7000)
 
     return () => clearInterval(ticker)

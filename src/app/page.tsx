@@ -356,6 +356,7 @@ export default function Home() {
             onGoToCommonRoom={() => setCurrentLocation('common-room')}
             hasVisitedShop={hasVisitedShop}
             hasRequiredMaterials={checkHasRequiredMaterials(inventory)}
+            gameTime={gameTime}
           />
         )}
 

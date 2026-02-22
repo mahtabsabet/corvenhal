@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { InventoryState } from './game-navigation'
 import { JournalEntry, JournalWriting, JournalViewer } from './journal-writing'
 import { useHydrated } from '@/hooks/use-hydrated'
+import { GameTime, getTimeSlot } from '@/lib/game-time'
 
 // ============================================
 // DORMITORY SCENE
@@ -20,9 +21,10 @@ interface DormitorySceneProps {
   onGoToCommonRoom?: () => void
   hasVisitedShop?: boolean
   hasRequiredMaterials?: boolean
+  gameTime?: GameTime
 }
 
-export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false }: DormitorySceneProps) {
+export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false, gameTime }: DormitorySceneProps) {
   const hydrated = useHydrated()
   const [phase, setPhase] = useState<'explore' | 'sleep'>('explore')
   const [showContent, setShowContent] = useState(true)
@@ -31,7 +33,10 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
   const [showJournalWriting, setShowJournalWriting] = useState(false)
   const [showJournalViewer, setShowJournalViewer] = useState(false)
 
+  const isNightTime = gameTime ? getTimeSlot(gameTime.hour) === 'night' : true
+
   const handleSleep = () => {
+    if (!isNightTime) return
     setShowContent(false)
     setTimeout(() => {
       setTimeOfDay('dawn')
@@ -321,9 +326,14 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
                       </p>
                       <button
                         onClick={handleSleep}
-                        className="w-full py-3 px-6 font-cinzel text-base tracking-wider bg-gradient-to-b from-indigo-700 to-indigo-900 text-indigo-100 rounded-lg border border-indigo-600/30 hover:from-indigo-600 hover:to-indigo-800 transition-all duration-300 cursor-pointer"
+                        disabled={!isNightTime}
+                        className={`w-full py-3 px-6 font-cinzel text-base tracking-wider rounded-lg border transition-all duration-300 ${
+                          isNightTime
+                            ? 'bg-gradient-to-b from-indigo-700 to-indigo-900 text-indigo-100 border-indigo-600/30 hover:from-indigo-600 hover:to-indigo-800 cursor-pointer'
+                            : 'bg-gray-800/50 text-gray-500 border-gray-700/30 cursor-not-allowed'
+                        }`}
                       >
-                        🌙 Sleep Until Dawn
+                        {isNightTime ? '🌙 Sleep Until Dawn' : '🌙 Sleep Until Dawn (only at night)'}
                       </button>
                     </div>
                   )}

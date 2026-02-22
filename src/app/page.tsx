@@ -325,7 +325,7 @@ export default function Home() {
       />
 
       {/* Main content area - offset for sidebar on desktop */}
-      <div className="flex-1 md:ml-56 overflow-hidden">
+      <div className="flex-1 md:ml-56 overflow-y-auto">
         {currentLocation === 'academy' && (
           <GrandHallScene
             playerName={playerName}

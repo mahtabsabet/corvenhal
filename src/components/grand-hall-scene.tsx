@@ -57,7 +57,7 @@ export function GrandHallScene({ playerName, hasMetHeadmistress, onContinue, onM
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative min-h-full w-full">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -75,7 +75,7 @@ export function GrandHallScene({ playerName, hasMetHeadmistress, onContinue, onM
       {hydrated && <FloatingCandles />}
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-4 md:p-8 pb-16">
+      <div className="relative z-10 min-h-full flex flex-col justify-end p-4 md:p-8 pb-16">
         
         {/* Phase 1: Entrance description (first visit only) */}
         {phase === 'entrance' && (

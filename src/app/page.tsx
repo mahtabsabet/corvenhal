@@ -20,7 +20,7 @@ import { JournalEntry } from '@/components/journal-writing'
 import { Spellbook } from '@/components/spellbook'
 import { SpellToolbar } from '@/components/spell-toolbar'
 import { Spell, PotionRecipe, getStartingSpells } from '@/lib/spells'
-import { GameTime, getDefaultGameTime, advanceTime } from '@/lib/game-time'
+import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes } from '@/lib/game-time'
 import { SaveGame, SAVE_VERSION, saveGame, loadGame, clearSave } from '@/lib/save-game'
 import { RestartModal } from '@/components/restart-modal'
 import { NamePrompt, AcceptanceScroll } from '@/components/intro-screens'
@@ -136,6 +136,17 @@ export default function Home() {
 
     saveGame(saveData)
   }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime])
+
+  // Real-time game clock: 10 in-game minutes per 7 real seconds
+  useEffect(() => {
+    if (gameState !== 'school') return
+
+    const ticker = setInterval(() => {
+      setGameTime(prev => advanceMinutes(prev, 10))
+    }, 7000)
+
+    return () => clearInterval(ticker)
+  }, [gameState])
 
   const handleNameSubmit = (name: string) => {
     setPlayerName(name)

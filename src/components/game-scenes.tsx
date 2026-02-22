@@ -2,19 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-
-// Simple hydration check - returns true after first client render
-function useHydrated() {
-  const [hydrated, setHydrated] = useState(false)
-  
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setHydrated(true)
-    })
-  }, [])
-  
-  return hydrated
-}
+import { useHydrated } from '@/hooks/use-hydrated'
 
 // ============================================
 // SCENE 1: THE DEPARTURE (Cottage & Carriage)

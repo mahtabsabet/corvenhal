@@ -4,19 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { InventoryState } from './game-navigation'
 import { JournalEntry, JournalWriting, JournalViewer } from './journal-writing'
-
-// Simple hydration check - returns true after first client render
-function useHydrated() {
-  const [hydrated, setHydrated] = useState(false)
-  
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setHydrated(true)
-    })
-  }, [])
-  
-  return hydrated
-}
+import { useHydrated } from '@/hooks/use-hydrated'
 
 // ============================================
 // DORMITORY SCENE

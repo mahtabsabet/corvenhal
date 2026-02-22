@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GameTime, DAY_ICONS, formatHour, getTimeSlot, isClassAvailableNow, getCurrentClass, getTimeSlotShort, CLASS_SCHEDULE, getTimeUntilNextClass, TimeUntilClass } from '@/lib/game-time'
+import { GameTime, DAY_ICONS, formatHour, getTimeSlot, isClassAvailableNow, getCurrentClass, getTimeSlotShort, getTimeUntilNextClass, TimeUntilClass } from '@/lib/game-time'
+import { InventoryState, InventoryItem, createInventoryItem, addItemToInventory, advanceTermProgress, isConsumable, getConsumableConfig } from '@/lib/inventory'
+import { InventoryPanel } from '@/components/inventory-panel'
 
 // ============================================
 // TYPES
@@ -9,46 +11,10 @@ import { GameTime, DAY_ICONS, formatHour, getTimeSlot, isClassAvailableNow, getC
 
 export type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom'
 
-export interface InventoryItem {
-  id: string
-  name: string
-  description: string
-  icon: string
-  category: 'wands' | 'robes' | 'cauldrons' | 'instruments' | 'books' | 'misc'
-  quantity: number
-  isConsumable: boolean
-  maxUses?: number
-  currentUses?: number
-  purchaseDate: number // timestamp
-}
-
-export interface InventoryState {
-  gold: number
-  items: InventoryItem[]
-  currentTerm: number
-  termProgress: number // 0-100, represents percentage through term
-}
-
-// ============================================
-// CONSUMABLE DEFINITIONS
-// ============================================
-
-const CONSUMABLE_CONFIG: Record<string, { maxUses: number; termDecayRate: number }> = {
-  'parchment': { maxUses: 50, termDecayRate: 12 }, // loses 12 uses per quarter term
-  'ink-set': { maxUses: 30, termDecayRate: 8 },
-  'quill-set': { maxUses: 100, termDecayRate: 5 },
-  'crystal-phials': { maxUses: 7, termDecayRate: 1 },
-}
-
-// Helper to determine if item is consumable
-export function isConsumable(itemId: string): boolean {
-  return itemId in CONSUMABLE_CONFIG
-}
-
-// Get consumable config
-export function getConsumableConfig(itemId: string) {
-  return CONSUMABLE_CONFIG[itemId]
-}
+// Re-export inventory types and helpers for backward compatibility
+export type { InventoryItem, InventoryState }
+export { createInventoryItem, addItemToInventory, advanceTermProgress, isConsumable, getConsumableConfig }
+export { InventoryPanel }
 
 // ============================================
 // NAVIGATION SIDEBAR
@@ -69,10 +35,10 @@ interface NavigationSidebarProps {
   hasRequiredMaterials?: boolean
 }
 
-export function NavigationSidebar({ 
-  currentLocation, 
-  onNavigate, 
-  gold, 
+export function NavigationSidebar({
+  currentLocation,
+  onNavigate,
+  gold,
   onOpenInventory,
   onOpenTimetable,
   onOpenSpellbook,
@@ -161,8 +127,8 @@ export function NavigationSidebar({
 
           {/* Time display - compact */}
           {gameTime && (
-            <TimeDisplay 
-              gameTime={gameTime} 
+            <SidebarTimeDisplay
+              gameTime={gameTime}
               currentClassInfo={currentClassInfo}
               onNavigate={onNavigate}
               setIsExpanded={setIsExpanded}
@@ -188,8 +154,8 @@ export function NavigationSidebar({
                   }}
                   className={`
                     w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all cursor-pointer
-                    ${currentLocation === loc.id 
-                      ? 'bg-amber-700/30 border border-amber-600/40 text-amber-100' 
+                    ${currentLocation === loc.id
+                      ? 'bg-amber-700/30 border border-amber-600/40 text-amber-100'
                       : 'hover:bg-amber-900/20 text-amber-200/70 hover:text-amber-100'
                     }
                   `}
@@ -248,7 +214,7 @@ export function NavigationSidebar({
 
       {/* Overlay for mobile */}
       {isExpanded && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
           onClick={() => setIsExpanded(false)}
         />
@@ -268,14 +234,14 @@ export function NavigationSidebar({
                   </p>
                 )}
               </div>
-              <button 
+              <button
                 onClick={() => setShowClassroomMenu(false)}
                 className="text-amber-400 hover:text-amber-200 transition-colors cursor-pointer"
               >
                 ✕
               </button>
             </div>
-            
+
             {/* Current class highlight */}
             {currentClassInfo && hasVisitedShop && hasRequiredMaterials && (
               <div className="mx-4 mb-2 p-3 rounded-lg bg-green-900/30 border border-green-700/30">
@@ -299,7 +265,7 @@ export function NavigationSidebar({
                 </button>
               </div>
             )}
-            
+
             {/* Warning if not ready for class */}
             {(!hasVisitedShop || !hasRequiredMaterials) && (
               <div className="mx-4 mb-2 p-3 rounded-lg bg-red-900/30 border border-red-700/30">
@@ -316,7 +282,7 @@ export function NavigationSidebar({
                 )}
               </div>
             )}
-            
+
             <div className="p-4">
               <p className="font-crimson text-amber-400/60 text-xs mb-2 uppercase tracking-wider">All Classes</p>
               <div className="grid grid-cols-2 gap-2">
@@ -324,7 +290,7 @@ export function NavigationSidebar({
                   const isAvailable = checkClassAvailable(cls.id)
                   const isCurrentClass = currentClassInfo?.id === cls.id
                   const canAttend = hasVisitedShop && hasRequiredMaterials
-                  
+
                   return (
                     <button
                       key={cls.id}
@@ -379,7 +345,7 @@ export function NavigationSidebar({
             {/* Header */}
             <div className="scroll-edge py-3 px-4 flex items-center justify-between">
               <h2 className="font-cinzel text-amber-100 text-xl tracking-wider">Weekly Schedule</h2>
-              <button 
+              <button
                 onClick={() => setShowTimetable(false)}
                 className="text-amber-400 hover:text-amber-200 transition-colors cursor-pointer"
               >
@@ -414,7 +380,7 @@ export function NavigationSidebar({
                       <span className="font-cinzel text-amber-200 text-xs">{row.day}</span>
                     </div>
                     {row.classes.map((className, j) => (
-                      <div 
+                      <div
                         key={j}
                         className="p-1.5 rounded bg-amber-900/30 flex items-center justify-center text-center min-h-[36px]"
                       >
@@ -433,278 +399,10 @@ export function NavigationSidebar({
 }
 
 // ============================================
-// INVENTORY PANEL
+// SIDEBAR TIME DISPLAY (internal - sidebar-specific)
 // ============================================
 
-interface InventoryPanelProps {
-  isOpen: boolean
-  onClose: () => void
-  inventory: InventoryState
-}
-
-export function InventoryPanel({ isOpen, onClose, inventory }: InventoryPanelProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-
-  const categories = [
-    { id: 'wands', name: 'Wands', icon: '🪄' },
-    { id: 'robes', name: 'Robes', icon: '🧥' },
-    { id: 'cauldrons', name: 'Cauldrons', icon: '⚗️' },
-    { id: 'instruments', name: 'Instruments', icon: '🔮' },
-    { id: 'books', name: 'Books', icon: '📕' },
-    { id: 'misc', name: 'Supplies', icon: '🪶' },
-  ]
-
-  const filteredItems = selectedCategory 
-    ? inventory.items.filter(item => item.category === selectedCategory)
-    : inventory.items
-
-  // Calculate durability percentage for consumables
-  const getDurabilityPercent = (item: InventoryItem): number | null => {
-    if (!item.isConsumable || !item.maxUses || !item.currentUses) return null
-    return Math.round((item.currentUses / item.maxUses) * 100)
-  }
-
-  // Get durability color
-  const getDurabilityColor = (percent: number): string => {
-    if (percent > 60) return 'text-green-400'
-    if (percent > 30) return 'text-amber-400'
-    return 'text-red-400'
-  }
-
-  // Get durability bar color
-  const getDurabilityBarColor = (percent: number): string => {
-    if (percent > 60) return 'bg-green-500'
-    if (percent > 30) return 'bg-amber-500'
-    return 'bg-red-500'
-  }
-
-  return (
-    <>
-      {/* Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-          <div className="relative bg-gradient-to-b from-[#1f1a14] to-[#161310] rounded-lg border border-amber-900/40 shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-            {/* Header */}
-            <div className="scroll-edge py-3 px-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-cinzel text-amber-100 text-xl tracking-wider">Your Inventory</h2>
-                <p className="font-crimson text-amber-400/60 text-sm">Term {inventory.currentTerm} • {inventory.termProgress}% Complete</p>
-              </div>
-              <button 
-                onClick={onClose}
-                className="text-amber-400 hover:text-amber-200 transition-colors cursor-pointer text-xl"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Gold and stats bar */}
-            <div className="px-4 py-3 border-b border-amber-900/30 bg-black/20 flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🪙</span>
-                <span className="font-cinzel text-amber-300 text-lg">{inventory.gold} Gold</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📦</span>
-                <span className="font-crimson text-amber-200/70 text-sm">{inventory.items.length} item types</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">⚠️</span>
-                <span className="font-crimson text-amber-200/70 text-sm">
-                  {inventory.items.filter(i => i.isConsumable && i.currentUses && i.currentUses < (i.maxUses || 0) * 0.3).length} low supplies
-                </span>
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div className="flex gap-2 p-4 overflow-x-auto border-b border-amber-900/30">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-3 py-1.5 rounded-lg font-crimson text-xs whitespace-nowrap transition-all cursor-pointer ${
-                  selectedCategory === null ? 'bg-amber-700 text-amber-100' : 'bg-amber-900/30 text-amber-300 hover:bg-amber-900/50'
-                }`}
-              >
-                All ({inventory.items.length})
-              </button>
-              {categories.map(cat => {
-                const count = inventory.items.filter(i => i.category === cat.id).length
-                if (count === 0) return null
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 py-1.5 rounded-lg font-crimson text-xs whitespace-nowrap flex items-center gap-1 transition-all cursor-pointer ${
-                      selectedCategory === cat.id ? 'bg-amber-700 text-amber-100' : 'bg-amber-900/30 text-amber-300 hover:bg-amber-900/50'
-                    }`}
-                  >
-                    <span>{cat.icon}</span>
-                    {cat.name} ({count})
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Items */}
-            <div className="p-4 overflow-y-auto max-h-[50vh]">
-              {filteredItems.length === 0 ? (
-                <div className="text-center py-12">
-                  <span className="text-4xl mb-4 block opacity-50">🎒</span>
-                  <p className="font-crimson text-amber-200/50">No items in this category</p>
-                  <p className="font-crimson text-amber-400/40 text-sm italic mt-1">Visit the school shop to purchase supplies</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {filteredItems.map(item => {
-                    const durability = getDurabilityPercent(item)
-                    return (
-                      <div 
-                        key={item.id}
-                        className="bg-amber-950/30 rounded-lg p-4 border border-amber-900/30 hover:border-amber-700/50 transition-all"
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl">{item.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <h4 className="font-cinzel text-amber-100 text-sm">{item.name}</h4>
-                              {item.quantity > 1 && (
-                                <span className="text-xs font-cinzel text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded">
-                                  ×{item.quantity}
-                                </span>
-                              )}
-                            </div>
-                            <p className="font-crimson text-amber-200/50 text-xs mt-1 line-clamp-2">{item.description}</p>
-                            
-                            {/* Durability bar for consumables */}
-                            {item.isConsumable && durability !== null && (
-                              <div className="mt-3">
-                                <div className="flex items-center justify-between text-xs mb-1">
-                                  <span className="font-crimson text-amber-200/60">Uses remaining</span>
-                                  <span className={`font-cinzel ${getDurabilityColor(durability)}`}>
-                                    {item.currentUses} / {item.maxUses}
-                                  </span>
-                                </div>
-                                <div className="h-1.5 bg-amber-900/30 rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full ${getDurabilityBarColor(durability)} transition-all duration-500`}
-                                    style={{ width: `${durability}%` }}
-                                  />
-                                </div>
-                                {durability < 30 && (
-                                  <p className="text-red-400 text-xs font-crimson mt-1 flex items-center gap-1">
-                                    <span>⚠️</span> Running low! Restock at the shop.
-                                  </p>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Non-consumable indicator */}
-                            {!item.isConsumable && (
-                              <div className="mt-2 flex items-center gap-1">
-                                <span className="text-green-400 text-xs">✓</span>
-                                <span className="font-crimson text-green-400/70 text-xs">Permanent item</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-4 py-3 border-t border-amber-900/30 bg-black/20">
-              <p className="font-crimson text-amber-200/40 text-xs text-center italic">
-                Consumable supplies deplete over time. Check back regularly to monitor your stock!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
-
-// ============================================
-// HELPER FUNCTIONS FOR INVENTORY MANAGEMENT
-// ============================================
-
-export function createInventoryItem(
-  id: string,
-  name: string,
-  description: string,
-  icon: string,
-  category: InventoryItem['category'],
-  quantity: number = 1
-): InventoryItem {
-  const consumable = isConsumable(id)
-  const config = consumable ? getConsumableConfig(id) : null
-  
-  return {
-    id,
-    name,
-    description,
-    icon,
-    category,
-    quantity,
-    isConsumable: consumable,
-    maxUses: config?.maxUses,
-    currentUses: config?.maxUses,
-    purchaseDate: Date.now(),
-  }
-}
-
-export function addItemToInventory(
-  currentInventory: InventoryItem[],
-  newItem: InventoryItem
-): InventoryItem[] {
-  const existing = currentInventory.find(i => i.id === newItem.id)
-  
-  if (existing) {
-    // Stack items - increase quantity
-    // For consumables, add uses
-    if (existing.isConsumable && existing.currentUses !== undefined && newItem.currentUses !== undefined) {
-      existing.currentUses += newItem.currentUses
-      existing.maxUses = (existing.maxUses || 0) + (newItem.maxUses || 0)
-    }
-    existing.quantity += newItem.quantity
-    return [...currentInventory]
-  }
-  
-  return [...currentInventory, newItem]
-}
-
-// Simulate term progress - decay consumables
-export function advanceTermProgress(inventory: InventoryState, quartersPassed: number): InventoryState {
-  const newItems = inventory.items.map(item => {
-    if (!item.isConsumable || !item.currentUses) return item
-
-    const config = getConsumableConfig(item.id)
-    if (!config) return item
-
-    const decayAmount = config.termDecayRate * quartersPassed
-    const newUses = Math.max(0, item.currentUses - decayAmount)
-
-    return {
-      ...item,
-      currentUses: newUses,
-    }
-  })
-
-  return {
-    ...inventory,
-    items: newItems,
-    termProgress: Math.min(100, inventory.termProgress + (quartersPassed * 25)),
-  }
-}
-
-// ============================================
-// TIME DISPLAY COMPONENT
-// ============================================
-
-interface TimeDisplayProps {
+interface SidebarTimeDisplayProps {
   gameTime: GameTime
   currentClassInfo: { id: string; name: string; icon: string } | null
   onNavigate: (location: GameLocation) => void
@@ -712,22 +410,18 @@ interface TimeDisplayProps {
   hasRequiredMaterials: boolean
 }
 
-function TimeDisplay({ gameTime, currentClassInfo, onNavigate, setIsExpanded, hasRequiredMaterials }: TimeDisplayProps) {
+function SidebarTimeDisplay({ gameTime, currentClassInfo, onNavigate, setIsExpanded, hasRequiredMaterials }: SidebarTimeDisplayProps) {
   const [showNotification, setShowNotification] = useState(false)
   const [hasNotified, setHasNotified] = useState<string | null>(null)
 
-  // Calculate time until next class using useMemo
   const timeUntilNext = getTimeUntilNextClass(gameTime)
 
   useEffect(() => {
-    // Show notification when class is urgent (15 min or less) and we haven't notified for this class
-    // Only show if player has required materials
     if (timeUntilNext?.isUrgent && timeUntilNext.classInfo.id !== hasNotified && hasRequiredMaterials) {
       setShowNotification(true) // eslint-disable-line react-hooks/set-state-in-effect
       setHasNotified(timeUntilNext.classInfo.id)
     }
 
-    // Reset notification tracking when class changes
     if (timeUntilNext && timeUntilNext.classInfo.id !== hasNotified && !timeUntilNext.isUrgent) {
       setHasNotified(null) // eslint-disable-line react-hooks/set-state-in-effect
     }

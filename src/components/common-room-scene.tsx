@@ -2,19 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-
-// Simple hydration check
-function useHydrated() {
-  const [hydrated, setHydrated] = useState(false)
-  
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setHydrated(true)
-    })
-  }, [])
-  
-  return hydrated
-}
+import { useHydrated } from '@/hooks/use-hydrated'
 
 // ============================================
 // COMMON ROOM SCENE

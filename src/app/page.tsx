@@ -20,7 +20,7 @@ import { JournalEntry } from '@/components/journal-writing'
 import { Spellbook } from '@/components/spellbook'
 import { SpellToolbar } from '@/components/spell-toolbar'
 import { Spell, PotionRecipe, getStartingSpells } from '@/lib/spells'
-import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForSlot, TimeSlot } from '@/lib/game-time'
+import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForSlot, TimeSlot, CLASS_START_HOURS } from '@/lib/game-time'
 import { SaveGame, SAVE_VERSION, saveGame, loadGame, clearSave } from '@/lib/save-game'
 import { RestartModal } from '@/components/restart-modal'
 import { NamePrompt, AcceptanceScroll } from '@/components/intro-screens'
@@ -144,11 +144,13 @@ export default function Home() {
   useEffect(() => {
     if (gameState !== 'school') return
 
-    // The three class-start boundaries (hour, slot name)
+    // The three class-start boundaries: time freezes here until the player
+    // attends class and clicks "End Session" (handleLeaveClass adds 2 hours,
+    // landing on the class end time: 10 AM, 3 PM, 9 PM).
     const CLASS_STARTS: { hour: number; slot: TimeSlot }[] = [
-      { hour: 6,  slot: 'morning'   },
-      { hour: 12, slot: 'afternoon' },
-      { hour: 18, slot: 'evening'   },
+      { hour: CLASS_START_HOURS['morning']!,   slot: 'morning'   },  // 8 AM
+      { hour: CLASS_START_HOURS['afternoon']!, slot: 'afternoon' },  // 1 PM
+      { hour: CLASS_START_HOURS['evening']!,   slot: 'evening'   },  // 7 PM
     ]
 
     const ticker = setInterval(() => {

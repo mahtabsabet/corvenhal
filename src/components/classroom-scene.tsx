@@ -428,12 +428,12 @@ export function ClassroomScene({
             </button>
           </div>
 
-          <div className="flex-1 flex gap-4">
+          <div className="flex-1 flex flex-col md:flex-row gap-4">
             {/* Spell selection */}
-            <div className="w-64 bg-black/60 backdrop-blur-sm rounded-lg border border-amber-900/40 p-4">
+            <div className="w-full md:w-64 bg-black/60 backdrop-blur-sm rounded-lg border border-amber-900/40 p-4">
               <h3 className="font-cinzel text-amber-100 text-sm mb-3">Select Spell to Practice</h3>
               
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-40 md:max-h-none overflow-y-auto md:overflow-visible">
                 {practiceSpells.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="font-crimson text-amber-200/40 text-sm italic">
@@ -510,12 +510,12 @@ export function ClassroomScene({
             </div>
 
             {/* Practice area */}
-            <div className="flex-1 bg-black/40 backdrop-blur-sm rounded-lg border border-amber-900/40 p-6 flex flex-col items-center justify-center">
+            <div className="flex-1 bg-black/40 backdrop-blur-sm rounded-lg border border-amber-900/40 p-6 flex flex-col items-center justify-start md:justify-center min-h-[280px]">
               {practiceSpell ? (
                 <div className="text-center">
                   {/* Spell icon */}
                   <div className="mb-6">
-                    <span className="text-8xl block mb-4">{practiceSpell.icon}</span>
+                    <span className="text-6xl md:text-8xl block mb-4">{practiceSpell.icon}</span>
                     <h3 className="font-cinzel text-amber-100 text-2xl mb-2">{practiceSpell.name}</h3>
                     <p className="font-great-vibes text-amber-300 text-xl italic">{practiceSpell.incantation}</p>
                   </div>

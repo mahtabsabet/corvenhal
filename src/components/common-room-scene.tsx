@@ -39,7 +39,7 @@ export function CommonRoomScene({ playerName, inventory, hasVisitedShop }: Commo
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative min-h-full w-full">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -57,7 +57,7 @@ export function CommonRoomScene({ playerName, inventory, hasVisitedShop }: Commo
       {hydrated && <CommonRoomCandles />}
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-4 md:p-8 pb-16">
+      <div className="relative z-10 min-h-full flex flex-col justify-end p-4 md:p-8 pb-16">
         <div className={`max-w-3xl mx-auto w-full transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Room header */}
           <div className="text-center mb-4">

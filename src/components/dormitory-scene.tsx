@@ -64,7 +64,7 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
 
   return (
     <>
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative min-h-full w-full">
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
@@ -92,7 +92,7 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
         )}
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-end p-4 md:p-8 pb-16">
+        <div className="relative z-10 min-h-full flex flex-col justify-end p-4 md:p-8 pb-16">
           
           {/* Explore phase */}
           {phase === 'explore' && (

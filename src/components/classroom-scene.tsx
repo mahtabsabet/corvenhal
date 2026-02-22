@@ -168,11 +168,11 @@ export function ClassroomScene({
   // Entrance phase
   if (phase === 'entrance') {
     return (
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative min-h-full w-full">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0b09] via-[#1a1410] to-[#0d0b09]" />
 
-        <div className="relative z-10 h-full flex items-center justify-center p-4 pb-16">
+        <div className="relative z-10 min-h-full flex items-center justify-center p-4 pb-16">
           <div className={`max-w-2xl w-full transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {/* Class card */}
             <div className="bg-black/70 backdrop-blur-sm rounded-lg border border-amber-900/40 overflow-hidden shadow-2xl">
@@ -238,7 +238,7 @@ export function ClassroomScene({
     const currentLecture = lectureContent[lectureIndex]
 
     return (
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative min-h-full w-full">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0b09] via-[#1a1410] to-[#0d0b09]" />
 
@@ -260,7 +260,7 @@ export function ClassroomScene({
           ))}
         </div>
 
-        <div className="relative z-10 h-full flex items-center justify-center p-4 pb-16">
+        <div className="relative z-10 min-h-full flex items-center justify-center p-4 pb-16">
           <div className={`max-w-3xl w-full transition-all duration-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             {/* Professor speaking */}
             <div className="bg-black/60 backdrop-blur-sm rounded-lg border border-amber-900/40 overflow-hidden">
@@ -381,12 +381,12 @@ export function ClassroomScene({
     // Special handling for Potions class - show brewing interface
     if (classType === 'potions') {
       return (
-        <div className="relative h-full w-full overflow-hidden">
+        <div className="relative min-h-full w-full">
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0d0b09] via-[#1a1410] to-[#0d0b09]" />
 
           {/* Potion brewing interface */}
-          <div className="relative z-10 h-full">
+          <div className="relative z-10 min-h-full">
             <PotionBrewing
               learnedPotions={learnedPotions}
               onLearnPotion={onLearnPotion}
@@ -409,11 +409,11 @@ export function ClassroomScene({
 
     // Standard spell practice for other classes
     return (
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative min-h-full w-full">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0b09] via-[#1a1410] to-[#0d0b09]" />
 
-        <div className="relative z-10 h-full flex flex-col p-4 pb-16">
+        <div className="relative z-10 min-h-full flex flex-col p-4 pb-16">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -598,10 +598,10 @@ export function ClassroomScene({
   // Complete phase
   if (phase === 'complete') {
     return (
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative min-h-full w-full">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0b09] via-[#1a1410] to-[#0d0b09]" />
 
-        <div className="relative z-10 h-full flex items-center justify-center p-4 pb-16">
+        <div className="relative z-10 min-h-full flex items-center justify-center p-4 pb-16">
           <div className={`max-w-lg w-full transition-all duration-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="bg-black/70 backdrop-blur-sm rounded-lg border border-amber-900/40 p-8 text-center">
               <span className="text-6xl block mb-4">✨</span>

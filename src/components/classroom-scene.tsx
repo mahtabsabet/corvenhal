@@ -649,11 +649,11 @@ function getLectureContent(classType: ClassType, playerName: string, professorNa
       },
       {
         type: 'demonstration',
-        spellIcon: '💡',
-        spellName: 'Lumos',
-        incantation: 'LUM-os',
-        description: 'Let us begin with the simplest of elemental manipulations—creating light. By channeling a small amount of magical energy through your wand, you can ignite the air itself into a sustained glow.',
-        effects: ['Creates a soft white light', 'Illuminates a 15ft radius', 'Lasts for 1 hour']
+        spellIcon: '✨',
+        spellName: 'Starlight Orb',
+        incantation: 'AETH-el-LOOM',
+        description: 'Let us begin with the simplest of elemental manipulations—creating light. By channeling a small amount of magical energy through your wand, you can conjure a small sphere of soft starlight at its tip.',
+        effects: ['Creates a small sphere of soft starlight', 'Illuminates the area around you', 'Lasts until dismissed']
       },
       {
         type: 'dialogue',
@@ -662,10 +662,10 @@ function getLectureContent(classType: ClassType, playerName: string, professorNa
       {
         type: 'demonstration',
         spellIcon: '🔥',
-        spellName: 'Incendio',
-        incantation: 'in-SEN-dee-oh',
-        description: 'Now, a more practical application. By concentrating your will and speaking the incantation with conviction, you can produce a jet of flame. The key is visualization—see the fire in your mind before you call it forth.',
-        effects: ['Creates a jet of flame', 'Ignites flammable objects', 'Deals fire damage']
+        spellName: 'Flame Jet',
+        incantation: 'PY-ros-VEEN',
+        description: 'Now, a more practical application. By concentrating your will and speaking the incantation with conviction, you can produce a jet of flame from your wand. The key is visualization—see the fire in your mind before you call it forth.',
+        effects: ['Creates a jet of flame from your wand', 'Ignites flammable objects', 'Deals fire damage']
       },
       {
         type: 'dialogue',

@@ -281,6 +281,22 @@ export function getNextClassTime(time: GameTime): { time: GameTime; classInfo: S
   const currentSlot = getTimeSlot(time.hour)
   const currentSlotIndex = slots.indexOf(currentSlot)
 
+  // If we're in a slot but before the class start hour, the upcoming class IS
+  // in the current slot (e.g. 6:30 AM is in 'morning' but Elemental Theory
+  // doesn't start until 8 AM — show that class as the next one).
+  if (currentSlotIndex >= 0) {
+    const classStartHour = CLASS_START_HOURS[currentSlot]
+    if (classStartHour !== undefined && time.hour < classStartHour) {
+      const slotClass = getClassForSlot(time.day, currentSlot)
+      if (slotClass) {
+        return {
+          time: { day: time.day, hour: classStartHour, minute: 0, dayNumber: time.dayNumber },
+          classInfo: slotClass,
+        }
+      }
+    }
+  }
+
   // Check later slots today
   for (let i = currentSlotIndex + 1; i < slots.length; i++) {
     const nextClass = getClassForSlot(time.day, slots[i])

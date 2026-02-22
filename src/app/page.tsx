@@ -20,7 +20,7 @@ import { JournalEntry } from '@/components/journal-writing'
 import { Spellbook } from '@/components/spellbook'
 import { SpellToolbar } from '@/components/spell-toolbar'
 import { Spell, PotionRecipe, getStartingSpells } from '@/lib/spells'
-import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForSlot, TimeSlot, CLASS_START_HOURS } from '@/lib/game-time'
+import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForSlot, getNextClassTime, TimeSlot, CLASS_START_HOURS } from '@/lib/game-time'
 import { SaveGame, SAVE_VERSION, saveGame, loadGame, clearSave } from '@/lib/save-game'
 import { RestartModal } from '@/components/restart-modal'
 import { NamePrompt, AcceptanceScroll } from '@/components/intro-screens'
@@ -399,7 +399,20 @@ export default function Home() {
             journalEntries={journalEntries}
             onSaveJournalEntry={handleSaveJournalEntry}
             onHeadToClass={() => setCurrentLocation('classroom')}
-            onAdvanceTime={() => setGameTime(prev => advanceTime(prev, 12))}
+            onAdvanceTime={() => setGameTime(prev => {
+              const afterSleep = advanceTime(prev, 12)
+              // If sleeping would skip past a class start, wake up at that class instead
+              const nextClass = getNextClassTime(prev)
+              if (nextClass) {
+                const prevMins  = prev.dayNumber * 1440 + prev.hour * 60 + prev.minute
+                const sleepMins = afterSleep.dayNumber * 1440 + afterSleep.hour * 60 + afterSleep.minute
+                const classMins = nextClass.time.dayNumber * 1440 + nextClass.time.hour * 60 + nextClass.time.minute
+                if (classMins > prevMins && classMins <= sleepMins) {
+                  return nextClass.time
+                }
+              }
+              return afterSleep
+            })}
             onGoToCommonRoom={() => setCurrentLocation('common-room')}
             hasVisitedShop={hasVisitedShop}
             hasRequiredMaterials={checkHasRequiredMaterials(inventory)}

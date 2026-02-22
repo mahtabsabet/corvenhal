@@ -248,12 +248,12 @@ export function NavigationSidebar({
                 <p className="font-crimson text-green-400/80 text-xs mb-2">Currently Available:</p>
                 <button
                   onClick={() => {
-                    onNavigate('classroom')
-                    setShowClassroomMenu(false)
-                    setIsExpanded(false)
                     if (typeof window !== 'undefined') {
                       sessionStorage.setItem('selectedClass', currentClassInfo.id)
                     }
+                    onNavigate('classroom')
+                    setShowClassroomMenu(false)
+                    setIsExpanded(false)
                   }}
                   className="w-full flex items-center gap-3 p-2 rounded-lg bg-green-800/30 hover:bg-green-700/30 border border-green-600/30 transition-all cursor-pointer"
                 >
@@ -296,12 +296,12 @@ export function NavigationSidebar({
                       key={cls.id}
                       onClick={() => {
                         if (isAvailable && canAttend) {
-                          onNavigate('classroom')
-                          setShowClassroomMenu(false)
-                          setIsExpanded(false)
                           if (typeof window !== 'undefined') {
                             sessionStorage.setItem('selectedClass', cls.id)
                           }
+                          onNavigate('classroom')
+                          setShowClassroomMenu(false)
+                          setIsExpanded(false)
                         }
                       }}
                       disabled={!isAvailable || !canAttend}

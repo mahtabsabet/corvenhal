@@ -211,11 +211,11 @@ export function advanceMinutes(time: GameTime, minutes: number): GameTime {
   }
 }
 
-// Get default starting time (Sunday evening before classes start)
+// Get default starting time (Sunday night before classes start)
 export function getDefaultGameTime(): GameTime {
   return {
     day: 'Sunday',
-    hour: 19, // 7 PM
+    hour: 22, // 10 PM
     minute: 0,
     dayNumber: 0, // Day 0 - day before term starts
   }

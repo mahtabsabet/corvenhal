@@ -110,7 +110,7 @@ export function NavigationSidebar({
         <div className="flex flex-col h-full p-3 overflow-y-auto">
           {/* Logo - compact */}
           <div className="text-center py-2 border-b border-amber-900/30 mb-2">
-            <h1 className="font-cinzel text-amber-100 text-base tracking-wider">Arcana Mystica</h1>
+            <h1 className="font-cinzel text-amber-100 text-base tracking-wider">Corvenhal Academy</h1>
           </div>
 
           {/* Player info + Gold combined */}

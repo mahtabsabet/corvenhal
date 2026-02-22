@@ -43,16 +43,16 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Arcana Mystica - Academy of the Arcane Arts",
-  description: "Begin your magical education at the prestigious Arcana Mystica Academy. Learn the arcane arts, master elemental magic, and unlock ancient mysteries.",
+  title: "Corvenhal Academy - Academy of the Arcane Arts",
+  description: "Begin your magical education at the prestigious Corvenhal Academy. Learn the arcane arts, master elemental magic, and unlock ancient mysteries.",
   keywords: ["magic school", "arcane arts", "sorcery", "fantasy game", "RPG", "wizardry"],
-  authors: [{ name: "Arcana Mystica" }],
+  authors: [{ name: "Corvenhal Academy" }],
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>",
   },
   openGraph: {
-    title: "Arcana Mystica - Academy of the Arcane Arts",
-    description: "Begin your magical education at the prestigious Arcana Mystica Academy",
+    title: "Corvenhal Academy - Academy of the Arcane Arts",
+    description: "Begin your magical education at the prestigious Corvenhal Academy",
     type: "website",
   },
 };

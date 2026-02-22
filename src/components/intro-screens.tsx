@@ -75,7 +75,7 @@ export function NamePrompt({ onSubmit, hasExistingSave, onLoadSave, savedPlayerN
             <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-700 to-transparent" />
           </div>
           <h1 className="font-cinzel text-3xl md:text-4xl text-amber-100 mb-2 tracking-widest">
-            ARCANA MYSTICA
+            CORVENHAL ACADEMY
           </h1>
           <p className="text-amber-200/50 text-sm font-crimson italic tracking-wide">
             Academy of the Arcane Arts
@@ -278,7 +278,7 @@ export function AcceptanceScroll({ studentName, onContinue }: { studentName: str
                 <div className="inline-block">
                   <div className="text-4xl md:text-5xl text-amber-800/80 mb-2">☽ ✦ ☾</div>
                   <h1 className="font-cinzel text-2xl md:text-3xl text-amber-900 tracking-wider">
-                    ARCANA MYSTICA
+                    CORVENHAL ACADEMY
                   </h1>
                   <p className="font-crimson text-amber-800/70 text-sm md:text-base italic mt-1">
                     Academy of the Arcane Arts
@@ -305,7 +305,7 @@ export function AcceptanceScroll({ studentName, onContinue }: { studentName: str
 
                 <p className="font-crimson text-base md:text-lg leading-relaxed px-2">
                   You are hereby granted admission to the esteemed halls of
-                  <span className="font-cinzel font-semibold text-amber-800"> Arcana Mystica</span>,
+                  <span className="font-cinzel font-semibold text-amber-800"> Corvenhal Academy</span>,
                   where the ancient mysteries await those with the gift.
                 </p>
 
@@ -336,15 +336,15 @@ export function AcceptanceScroll({ studentName, onContinue }: { studentName: str
                   {/* Wax seal */}
                   <div className="flex justify-center mt-6 mb-4">
                     <div className="wax-seal w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transform rotate-[-5deg]">
-                      <span className="font-cinzel text-amber-100/90 text-lg md:text-xl font-bold">AM</span>
+                      <span className="font-cinzel text-amber-100/90 text-lg md:text-xl font-bold">CA</span>
                     </div>
                   </div>
 
                   <p className="font-medieval text-amber-800/60 text-sm">
-                    Headmaster Alaric Thornwood
+                    Headmistress Seraphina Vale
                   </p>
                   <p className="font-crimson text-amber-700/50 text-xs italic">
-                    Keeper of the Seventh Seal
+                    Mistress of the Inner Circle
                   </p>
                 </div>
               </div>

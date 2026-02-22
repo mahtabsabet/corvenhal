@@ -69,7 +69,7 @@ export function DepartureScene({ playerName, onContinue }: DepartureSceneProps) 
                 A strange energy lingers in the air...
               </p>
               <p className="font-crimson text-amber-200/70 text-base italic mb-6">
-                The letter from Arcana Mystica rests on your nightstand. Today, everything changes.
+                The letter from Corvenhal Academy rests on your nightstand. Today, everything changes.
               </p>
               <button
                 onClick={handleStepOutside}
@@ -146,14 +146,6 @@ interface JourneySceneProps {
 export function JourneyScene({ onArrive }: JourneySceneProps) {
   const hydrated = useHydrated()
   const [showText, setShowText] = useState(false)
-  const [textIndex, setTextIndex] = useState(0)
-
-  const journeyTexts = [
-    "The carriage rises into the clouds, leaving the mortal world behind...",
-    "Through the window, you glimpse floating islands and forests of crystal trees...",
-    "A bridge of starlight stretches across an endless void...",
-    "As twilight descends, the first towers of Arcana Mystica pierce the horizon...",
-  ]
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowText(true), 500)
@@ -161,22 +153,13 @@ export function JourneyScene({ onArrive }: JourneySceneProps) {
   }, [])
 
   useEffect(() => {
-    if (textIndex < journeyTexts.length - 1 && showText) {
-      const timer = setTimeout(() => {
-        setShowText(false)
-        setTimeout(() => {
-          setTextIndex(prev => prev + 1)
-          setShowText(true)
-        }, 500)
-      }, 4000)
-      return () => clearTimeout(timer)
-    } else if (textIndex === journeyTexts.length - 1 && showText) {
+    if (showText) {
       const timer = setTimeout(() => {
         onArrive()
-      }, 3000)
+      }, 4000)
       return () => clearTimeout(timer)
     }
-  }, [textIndex, showText, journeyTexts.length, onArrive])
+  }, [showText, onArrive])
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
@@ -196,20 +179,6 @@ export function JourneyScene({ onArrive }: JourneySceneProps) {
       {/* Floating sparkles */}
       {hydrated && <SparkleParticles />}
 
-      {/* Progress indicator */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
-        <div className="flex gap-2">
-          {journeyTexts.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                i <= textIndex ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : 'bg-amber-900/50'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
       {/* Carriage window frame effect */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 border-[40px] md:border-[80px] border-black/30 rounded-lg" />
@@ -220,7 +189,7 @@ export function JourneyScene({ onArrive }: JourneySceneProps) {
         <div className={`max-w-2xl w-full transition-all duration-700 ${showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="bg-black/70 backdrop-blur-sm rounded-lg p-6 md:p-8 border border-amber-900/40 text-center">
             <p className="font-crimson text-amber-100 text-xl md:text-2xl leading-relaxed italic">
-              {journeyTexts[textIndex]}
+              The carriage rises into the clouds, carrying you toward Corvenhal Academy and the life that awaits...
             </p>
           </div>
         </div>
@@ -260,7 +229,7 @@ export function CastleReveal({ playerName, onEnter }: CastleRevealProps) {
       <div className="absolute inset-0">
         <Image
           src="/images/arcana-mystica-castle.png"
-          alt="Arcana Mystica Castle"
+          alt="Corvenhal Academy Castle"
           fill
           className="object-cover"
           priority
@@ -279,7 +248,7 @@ export function CastleReveal({ playerName, onEnter }: CastleRevealProps) {
       {/* Castle name overlay */}
       <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center transition-all duration-1000 ${phase === 'reveal' ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
         <h1 className="font-cinzel text-4xl md:text-6xl text-amber-100 tracking-[0.3em] magical-glow animate-glow-pulse">
-          ARCANA MYSTICA
+          CORVENHAL ACADEMY
         </h1>
         <p className="font-crimson text-amber-200/60 text-lg md:text-xl italic mt-2 tracking-wider">
           Academy of the Arcane Arts
@@ -291,7 +260,7 @@ export function CastleReveal({ playerName, onEnter }: CastleRevealProps) {
         <div className={`max-w-2xl mx-auto w-full transition-all duration-1000 ${showContent && phase === 'gates' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="bg-black/70 backdrop-blur-sm rounded-lg p-6 border border-amber-900/40">
             <p className="font-crimson text-amber-100/90 text-lg leading-relaxed mb-4">
-              The carriage descends through the clouds, and there it stands—Arcana Mystica, 
+              The carriage descends through the clouds, and there it stands—Corvenhal Academy,
               its obsidian spires reaching toward the twin moons above.
             </p>
             <p className="font-crimson text-amber-200/70 text-base italic mb-6">

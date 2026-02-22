@@ -36,6 +36,16 @@ export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number }> =
   'night': { start: 22, end: 6 },
 }
 
+// Actual class start hours within each slot.
+// Morning class:   8 AM  – 10 AM
+// Afternoon class: 1 PM  –  3 PM
+// Evening class:   7 PM  –  9 PM
+export const CLASS_START_HOURS: Partial<Record<TimeSlot, number>> = {
+  'morning':   8,
+  'afternoon': 13,
+  'evening':   19,
+}
+
 // Get current time slot based on hour
 export function getTimeSlot(hour: number): TimeSlot {
   if (hour >= 6 && hour < 12) return 'morning'
@@ -271,11 +281,27 @@ export function getNextClassTime(time: GameTime): { time: GameTime; classInfo: S
   const currentSlot = getTimeSlot(time.hour)
   const currentSlotIndex = slots.indexOf(currentSlot)
 
+  // If we're in a slot but before the class start hour, the upcoming class IS
+  // in the current slot (e.g. 6:30 AM is in 'morning' but Elemental Theory
+  // doesn't start until 8 AM — show that class as the next one).
+  if (currentSlotIndex >= 0) {
+    const classStartHour = CLASS_START_HOURS[currentSlot]
+    if (classStartHour !== undefined && time.hour < classStartHour) {
+      const slotClass = getClassForSlot(time.day, currentSlot)
+      if (slotClass) {
+        return {
+          time: { day: time.day, hour: classStartHour, minute: 0, dayNumber: time.dayNumber },
+          classInfo: slotClass,
+        }
+      }
+    }
+  }
+
   // Check later slots today
   for (let i = currentSlotIndex + 1; i < slots.length; i++) {
     const nextClass = getClassForSlot(time.day, slots[i])
     if (nextClass) {
-      const nextHour = TIME_SLOT_HOURS[slots[i]].start
+      const nextHour = CLASS_START_HOURS[slots[i]] ?? TIME_SLOT_HOURS[slots[i]].start
       return {
         time: { day: time.day, hour: nextHour, minute: 0, dayNumber: time.dayNumber },
         classInfo: nextClass,
@@ -294,7 +320,7 @@ export function getNextClassTime(time: GameTime): { time: GameTime; classInfo: S
         return {
           time: {
             day: nextDay,
-            hour: TIME_SLOT_HOURS[slot].start,
+            hour: CLASS_START_HOURS[slot] ?? TIME_SLOT_HOURS[slot].start,
             minute: 0,
             dayNumber: time.dayNumber + dayOffset,
           },

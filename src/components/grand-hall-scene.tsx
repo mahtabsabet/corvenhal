@@ -82,7 +82,7 @@ export function GrandHallScene({ playerName, hasMetHeadmistress, onContinue, onM
           <div className={`max-w-2xl mx-auto w-full transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="bg-black/70 backdrop-blur-sm rounded-lg p-6 border border-amber-900/40">
               <p className="font-crimson text-amber-100/90 text-lg leading-relaxed mb-4">
-                The massive oak doors swing open, revealing the Grand Hall of Arcana Mystica. 
+                The massive oak doors swing open, revealing the Grand Hall of Corvenhal Academy. 
                 Hundreds of candles float lazily near the vaulted ceiling, casting dancing shadows 
                 across walls lined with portraits of ancient wizards.
               </p>
@@ -118,7 +118,7 @@ export function GrandHallScene({ playerName, hasMetHeadmistress, onContinue, onM
               <div className="space-y-4">
                 <p className="font-crimson text-amber-100/90 text-lg leading-relaxed">
                   &quot;Ah, {playerName}. We have been expecting you.&quot; Her voice carries the weight of centuries, 
-                  yet remains surprisingly warm. &quot;Welcome to Arcana Mystica. You stand among the chosen few 
+                  yet remains surprisingly warm. &quot;Welcome to Corvenhal Academy. You stand among the chosen few 
                   who possess the gift.&quot;
                 </p>
                 <p className="font-crimson text-amber-200/70 text-base leading-relaxed">
@@ -157,7 +157,7 @@ export function GrandHallScene({ playerName, hasMetHeadmistress, onContinue, onM
             <div className="bg-black/70 backdrop-blur-sm rounded-lg p-6 border border-amber-900/40">
               <div className="text-center mb-4">
                 <h2 className="font-cinzel text-amber-100 text-xl tracking-wider">The Grand Hall</h2>
-                <p className="font-crimson text-amber-400/60 text-sm italic">Heart of Arcana Mystica</p>
+                <p className="font-crimson text-amber-400/60 text-sm italic">Heart of Corvenhal Academy</p>
               </div>
               
               <p className="font-crimson text-amber-100/80 text-base leading-relaxed mb-4 text-center">

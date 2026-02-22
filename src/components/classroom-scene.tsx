@@ -641,7 +641,7 @@ function getLectureContent(classType: ClassType, playerName: string, professorNa
     elemental: [
       {
         type: 'dialogue',
-        text: `Welcome, ${playerName}, to Elemental Theory. The four elements—fire, water, earth, and air—are the building blocks of all magical phenomena. Understanding them is fundamental to your education here at Arcana Mystica.`
+        text: `Welcome, ${playerName}, to Elemental Theory. The four elements—fire, water, earth, and air—are the building blocks of all magical phenomena. Understanding them is fundamental to your education here at Corvenhal Academy.`
       },
       {
         type: 'dialogue',

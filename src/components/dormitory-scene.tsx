@@ -249,7 +249,7 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
                         <span>🌙</span> Arched Window
                       </h3>
                       <p className="font-crimson text-amber-100/80 text-base leading-relaxed mb-4">
-                        Through the gothic arched window, you can see the sprawling grounds of Arcana Mystica. 
+                        Through the gothic arched window, you can see the sprawling grounds of Corvenhal Academy. 
                         The twin moons hang low in the sky, casting silver light across the courtyard below. 
                         In the distance, you can make out the Forbidden Forest, its trees whispering secrets 
                         to the night wind.

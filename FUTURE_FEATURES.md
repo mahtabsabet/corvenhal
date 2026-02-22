@@ -61,7 +61,53 @@ Player can earn currency through:
 - Equipment upgrades
 
 
-## 5. Spell Mastery System
+## 5. Social Interactions
+
+### NPCs
+- Teachers and students are interactive NPCs with persistent relationship states
+- Conversations can be initiated at appropriate times (between classes, free periods, etc.)
+
+### Relationship Types
+- **Friendships** – built over time through repeated positive interactions
+- **Romantic Relationships** – available with students; develop from friendship through meaningful choices
+- **Teacher Rapport** – affects class experience, hints, and optional guidance; does not extend to romantic relationships
+
+### Study Groups
+- Player can form or join study groups with other students
+- Studying together increases learning speed or grants bonus XP for relevant subjects
+- Group chemistry matters: compatible relationships improve group effectiveness
+
+### Relationship Progression
+- Relationships progress through distinct stages (acquaintance → friend → close friend, etc.)
+- Choices in conversations influence relationship direction
+- Neglecting relationships causes them to decay over time
+- Some story events or advanced content may require specific relationship levels
+
+
+## 6. Food & Rest System
+
+### Mana Regeneration Baseline
+- Mana regenerates passively over time at a standard rate
+
+### Hunger
+- Player has a hunger meter that depletes over time
+- Being hungry slows mana regeneration significantly
+- Eating food restores hunger and returns regeneration to normal rate
+- Food can be purchased from the school shop or market, or crafted/grown
+
+### Tiredness
+- Player has an energy meter that depletes through activity
+- Being tired slows mana regeneration significantly
+- Rest (sleeping, resting in dormitory) restores energy
+- Stacking hunger and tiredness compounds the regeneration penalty
+
+### Design Notes
+- Hunger and tiredness are meant to add light resource management, not be punishing
+- Regeneration penalty should be noticeable but not game-blocking
+- Thresholds and penalty values should be tunable via config
+
+
+## 7. Spell Mastery System
 
 ### Spell Practice
 - Player must practice spells to increase level

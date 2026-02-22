@@ -24,19 +24,11 @@ import { GameTime, getDefaultGameTime, advanceTime, advanceMinutes, getClassForS
 import { SaveGame, SAVE_VERSION, saveGame, loadGame, clearSave } from '@/lib/save-game'
 import { RestartModal } from '@/components/restart-modal'
 import { NamePrompt, AcceptanceScroll } from '@/components/intro-screens'
+import { checkHasRequiredMaterials } from '@/lib/class-requirements'
 
 // ============================================
 // MAIN GAME COMPONENT
 // ============================================
-
-// Check if player has required materials for class
-function checkHasRequiredMaterials(inventory: InventoryState): boolean {
-  const requiredCategories = ['wands', 'robes', 'cauldrons', 'books']
-  const hasAll = requiredCategories.every(category =>
-    inventory.items.some(item => item.category === category)
-  )
-  return hasAll
-}
 
 const defaultInventory: InventoryState = {
   gold: 100,

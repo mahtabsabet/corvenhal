@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { PotionRecipe, POTION_LIBRARY } from '@/lib/spells'
 
 // ============================================
@@ -46,6 +46,8 @@ const AVAILABLE_INGREDIENTS = [
   { id: 'mandrake-root', name: 'Mandrake Root', icon: '🌱', description: 'A screaming root with potent properties' },
 ]
 
+type BrewTab = 'controls' | 'cauldron' | 'recipe'
+
 // ============================================
 // POTION BREWING COMPONENT
 // ============================================
@@ -70,6 +72,7 @@ export function PotionBrewing({
     result: null,
     resultMessage: '',
   })
+  const [activeTab, setActiveTab] = useState<BrewTab>('cauldron')
 
   // Timer for brewing
   useEffect(() => {
@@ -245,6 +248,7 @@ export function PotionBrewing({
       result: null,
       resultMessage: '',
     })
+    setActiveTab('cauldron')
   }
 
   // Select a potion to brew
@@ -263,12 +267,15 @@ export function PotionBrewing({
       result: null,
       resultMessage: '',
     })
+    setActiveTab('cauldron')
   }
 
-  // Setup phase - select potion
+  // ============================================
+  // SETUP PHASE - select potion
+  // ============================================
   if (brewState.phase === 'setup' || !brewState.selectedPotion) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-3 md:p-4">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-cinzel text-amber-100 text-xl">Potion Brewing</h2>
@@ -276,7 +283,7 @@ export function PotionBrewing({
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 font-crimson text-sm bg-amber-900/20 text-amber-300 rounded-lg hover:bg-amber-900/30 transition-all cursor-pointer"
+            className="px-4 py-2.5 font-crimson text-sm bg-amber-900/20 text-amber-300 rounded-lg hover:bg-amber-900/30 active:scale-95 transition-all cursor-pointer min-h-[44px]"
           >
             Leave Station
           </button>
@@ -290,7 +297,7 @@ export function PotionBrewing({
                 <button
                   key={potion.id}
                   onClick={() => selectPotion(potion)}
-                  className={`p-4 rounded-lg border text-left transition-all cursor-pointer ${
+                  className={`p-4 rounded-lg border text-left transition-all cursor-pointer min-h-[80px] active:scale-95 ${
                     isLearned
                       ? 'bg-green-950/30 border-green-700/30 hover:border-green-600/50'
                       : 'bg-amber-950/20 border-amber-900/30 hover:border-amber-700/50'
@@ -300,7 +307,7 @@ export function PotionBrewing({
                     <span className="text-3xl">{potion.icon}</span>
                     <div className="flex-1">
                       <h3 className="font-cinzel text-amber-100 text-sm">{potion.name}</h3>
-                      <p className="font-crimson text-amber-200/60 text-xs mt-1">{potion.description}</p>
+                      <p className="font-crimson text-amber-200/60 text-xs mt-1 line-clamp-2">{potion.description}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-amber-400/60">Tier: {potion.tier}</span>
                         <span className="text-xs text-amber-400/60">•</span>
@@ -320,7 +327,9 @@ export function PotionBrewing({
     )
   }
 
-  // Result phase
+  // ============================================
+  // RESULT PHASE
+  // ============================================
   if (brewState.phase === 'result') {
     return (
       <div className="h-full flex items-center justify-center p-4">
@@ -340,13 +349,13 @@ export function PotionBrewing({
           <div className="flex gap-3">
             <button
               onClick={resetBrew}
-              className="flex-1 py-3 px-4 font-cinzel text-sm bg-amber-900/30 text-amber-300 rounded-lg hover:bg-amber-900/40 transition-all cursor-pointer"
+              className="flex-1 py-3 px-4 font-cinzel text-sm bg-amber-900/30 text-amber-300 rounded-lg hover:bg-amber-900/40 active:scale-95 transition-all cursor-pointer min-h-[52px]"
             >
               Try Again
             </button>
             <button
               onClick={() => setBrewState(prev => ({ ...prev, phase: 'setup', selectedPotion: null }))}
-              className="flex-1 py-3 px-4 font-cinzel text-sm bg-gradient-to-b from-amber-700 to-amber-900 text-amber-100 rounded-lg hover:from-amber-600 hover:to-amber-800 transition-all cursor-pointer"
+              className="flex-1 py-3 px-4 font-cinzel text-sm bg-gradient-to-b from-amber-700 to-amber-900 text-amber-100 rounded-lg hover:from-amber-600 hover:to-amber-800 active:scale-95 transition-all cursor-pointer min-h-[52px]"
             >
               Choose Another
             </button>
@@ -356,13 +365,18 @@ export function PotionBrewing({
     )
   }
 
-  // Brewing phase
+  // ============================================
+  // BREWING PHASE
+  // ============================================
+
+  const canComplete = brewState.addedIngredients.size > 0 && brewState.fireLevel > 0
+
   return (
-    <div className="h-full flex flex-col p-4">
+    <div className="h-full flex flex-col p-3 md:p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h2 className="font-cinzel text-amber-100 text-xl">{brewState.selectedPotion.name}</h2>
+          <h2 className="font-cinzel text-amber-100 text-lg md:text-xl">{brewState.selectedPotion.name}</h2>
           <p className="font-crimson text-amber-400/60 text-sm">
             Time: {Math.floor(brewState.brewTime / 60)}:{(brewState.brewTime % 60).toString().padStart(2, '0')}
           </p>
@@ -370,41 +384,72 @@ export function PotionBrewing({
         <div className="flex gap-2">
           <button
             onClick={() => setBrewState(prev => ({ ...prev, phase: 'setup', selectedPotion: null }))}
-            className="px-3 py-1.5 font-crimson text-xs bg-amber-900/20 text-amber-300 rounded-lg hover:bg-amber-900/30 transition-all cursor-pointer"
+            className="px-3 py-2 font-crimson text-xs bg-amber-900/20 text-amber-300 rounded-lg hover:bg-amber-900/30 active:scale-95 transition-all cursor-pointer min-h-[40px]"
           >
-            Change Potion
+            Change
           </button>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 font-crimson text-xs bg-red-900/20 text-red-300 rounded-lg hover:bg-red-900/30 transition-all cursor-pointer"
+            className="px-3 py-2 font-crimson text-xs bg-red-900/20 text-red-300 rounded-lg hover:bg-red-900/30 active:scale-95 transition-all cursor-pointer min-h-[40px]"
           >
             Leave
           </button>
         </div>
       </div>
 
-      <div className="flex-1 flex gap-4 overflow-hidden">
-        {/* Left Panel - Controls */}
-        <div className="w-64 flex flex-col gap-3 overflow-y-auto">
+      {/* Mobile Tab Navigation */}
+      <div className="flex md:hidden gap-1 mb-3 bg-black/20 rounded-lg p-1">
+        {([
+          { id: 'controls' as BrewTab, icon: '⚗️', label: 'Controls' },
+          { id: 'cauldron' as BrewTab, icon: '🫧', label: 'Cauldron' },
+          { id: 'recipe' as BrewTab, icon: '📜', label: 'Recipe' },
+        ]).map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 py-2 font-cinzel rounded-md transition-all cursor-pointer active:scale-95 ${
+              activeTab === tab.id
+                ? 'bg-amber-700/50 text-amber-100'
+                : 'text-amber-400/60 hover:text-amber-300'
+            }`}
+          >
+            <span className="block text-base">{tab.icon}</span>
+            <span className="block text-[10px] mt-0.5">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex-1 flex flex-col md:flex-row gap-3 md:gap-4 overflow-hidden min-h-0">
+        {/* ── Left Panel – Controls ── */}
+        <div className={`md:w-64 flex-col gap-3 overflow-y-auto ${activeTab === 'controls' ? 'flex' : 'hidden'} md:flex`}>
+
           {/* Fire Control */}
           <div className="bg-black/40 rounded-lg p-3 border border-amber-900/30">
-            <h3 className="font-cinzel text-amber-100 text-xs mb-2 flex items-center gap-2">
+            <h3 className="font-cinzel text-amber-100 text-xs mb-3 flex items-center gap-2">
               <span>🔥</span> Fire Control
             </h3>
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setFireLevel(0)}
-                className="px-2 py-1 text-xs bg-gray-800 text-gray-300 rounded hover:bg-gray-700 cursor-pointer"
+                className="px-3 py-2 text-xs bg-gray-800 text-gray-300 rounded hover:bg-gray-700 active:scale-95 cursor-pointer min-h-[40px]"
               >
                 Off
               </button>
               <button
                 onClick={() => setFireLevel(brewState.fireLevel - 10)}
-                className="px-2 py-1 text-xs bg-amber-900/30 text-amber-300 rounded hover:bg-amber-900/50 cursor-pointer"
+                className="w-10 h-10 text-lg bg-amber-900/30 text-amber-300 rounded hover:bg-amber-900/50 active:scale-95 cursor-pointer flex items-center justify-center"
               >
-                -
+                −
               </button>
-              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+              {/* Clickable progress bar */}
+              <div
+                className="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  const pct = Math.round(((e.clientX - rect.left) / rect.width) * 10) * 10
+                  setFireLevel(Math.max(0, Math.min(100, pct)))
+                }}
+              >
                 <div
                   className="h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all"
                   style={{ width: `${brewState.fireLevel}%` }}
@@ -412,7 +457,7 @@ export function PotionBrewing({
               </div>
               <button
                 onClick={() => setFireLevel(brewState.fireLevel + 10)}
-                className="px-2 py-1 text-xs bg-amber-900/30 text-amber-300 rounded hover:bg-amber-900/50 cursor-pointer"
+                className="w-10 h-10 text-lg bg-amber-900/30 text-amber-300 rounded hover:bg-amber-900/50 active:scale-95 cursor-pointer flex items-center justify-center"
               >
                 +
               </button>
@@ -430,30 +475,30 @@ export function PotionBrewing({
             <h3 className="font-cinzel text-amber-100 text-xs mb-2 flex items-center gap-2">
               <span>🧪</span> Ingredients
             </h3>
-            <div className="space-y-1 max-h-32 overflow-y-auto">
+            <div className="space-y-2 max-h-52 md:max-h-32 overflow-y-auto">
               {AVAILABLE_INGREDIENTS.slice(0, 6).map(ing => {
                 const added = brewState.addedIngredients.get(ing.id) || 0
                 return (
-                  <div key={ing.id} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1">
-                      <span>{ing.icon}</span>
-                      <span className="font-crimson text-amber-200/70">{ing.name}</span>
+                  <div key={ing.id} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-base shrink-0">{ing.icon}</span>
+                      <span className="font-crimson text-amber-200/70 text-xs truncate">{ing.name}</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       {added > 0 && (
                         <>
                           <button
                             onClick={() => removeIngredient(ing.id)}
-                            className="w-5 h-5 rounded bg-amber-900/30 text-amber-300 hover:bg-amber-900/50 cursor-pointer text-[10px]"
+                            className="w-8 h-8 rounded bg-amber-900/30 text-amber-300 hover:bg-amber-900/50 active:scale-95 cursor-pointer text-base flex items-center justify-center"
                           >
-                            -
+                            −
                           </button>
-                          <span className="w-4 text-center text-amber-300">{added}</span>
+                          <span className="w-5 text-center text-amber-300 text-sm">{added}</span>
                         </>
                       )}
                       <button
                         onClick={() => addIngredient(ing.id)}
-                        className="w-5 h-5 rounded bg-green-900/30 text-green-300 hover:bg-green-900/50 cursor-pointer text-[10px]"
+                        className="w-8 h-8 rounded bg-green-900/30 text-green-300 hover:bg-green-900/50 active:scale-95 cursor-pointer text-base flex items-center justify-center"
                       >
                         +
                       </button>
@@ -466,13 +511,13 @@ export function PotionBrewing({
 
           {/* Stirring */}
           <div className="bg-black/40 rounded-lg p-3 border border-amber-900/30">
-            <h3 className="font-cinzel text-amber-100 text-xs mb-2 flex items-center gap-2">
+            <h3 className="font-cinzel text-amber-100 text-xs mb-3 flex items-center gap-2">
               <span>🥄</span> Stirring
             </h3>
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify-center gap-4 mb-3">
               <button
                 onClick={() => stir('counter-clockwise')}
-                className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-14 h-14 rounded-full border-2 flex items-center justify-center text-xl transition-all cursor-pointer active:scale-95 ${
                   brewState.stirDirection === 'counter-clockwise'
                     ? 'bg-amber-700/40 border-amber-500 scale-110'
                     : 'bg-amber-900/20 border-amber-700/30 hover:border-amber-600/50'
@@ -481,12 +526,12 @@ export function PotionBrewing({
                 ↺
               </button>
               <div className="text-center">
-                <p className="font-cinzel text-amber-300 text-lg">{brewState.stirCount}</p>
+                <p className="font-cinzel text-amber-300 text-xl">{brewState.stirCount}</p>
                 <p className="text-[10px] text-amber-400/60">stirs</p>
               </div>
               <button
                 onClick={() => stir('clockwise')}
-                className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-14 h-14 rounded-full border-2 flex items-center justify-center text-xl transition-all cursor-pointer active:scale-95 ${
                   brewState.stirDirection === 'clockwise'
                     ? 'bg-amber-700/40 border-amber-500 scale-110'
                     : 'bg-amber-900/20 border-amber-700/30 hover:border-amber-600/50'
@@ -495,13 +540,13 @@ export function PotionBrewing({
                 ↻
               </button>
             </div>
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1.5">
               <span className="text-[10px] text-amber-400/60">Speed:</span>
               {[1, 2, 3, 4, 5].map(speed => (
                 <button
                   key={speed}
                   onClick={() => setStirSpeed(speed)}
-                  className={`w-6 h-4 rounded text-[10px] transition-all cursor-pointer ${
+                  className={`w-8 h-8 rounded text-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center ${
                     brewState.stirSpeed === speed
                       ? 'bg-amber-700 text-amber-100'
                       : 'bg-amber-900/20 text-amber-400/60 hover:bg-amber-900/40'
@@ -514,8 +559,8 @@ export function PotionBrewing({
           </div>
         </div>
 
-        {/* Center - Cauldron */}
-        <div className="flex-1 flex flex-col items-center justify-center">
+        {/* ── Center – Cauldron ── */}
+        <div className={`flex-1 flex-col items-center justify-center gap-6 ${activeTab === 'cauldron' ? 'flex' : 'hidden'} md:flex`}>
           {/* Cauldron visualization */}
           <div className="relative">
             {/* Steam */}
@@ -533,7 +578,7 @@ export function PotionBrewing({
 
             {/* Cauldron */}
             <div
-              className={`w-32 h-24 rounded-b-full border-4 border-amber-800 transition-all duration-500 relative overflow-hidden ${
+              className={`w-36 h-28 md:w-32 md:h-24 rounded-b-full border-4 border-amber-800 transition-all duration-500 relative overflow-hidden ${
                 brewState.stirDirection ? 'animate-pulse' : ''
               }`}
               style={{ backgroundColor: cauldronColor }}
@@ -583,12 +628,12 @@ export function PotionBrewing({
             </div>
           </div>
 
-          {/* Complete button */}
+          {/* Complete button – visible on desktop and on the Cauldron tab on mobile */}
           <button
             onClick={completeBrew}
-            disabled={brewState.addedIngredients.size === 0 || brewState.fireLevel === 0}
-            className={`mt-8 px-8 py-3 font-cinzel text-sm tracking-wider rounded-lg transition-all cursor-pointer ${
-              brewState.addedIngredients.size > 0 && brewState.fireLevel > 0
+            disabled={!canComplete}
+            className={`px-8 py-3 font-cinzel text-sm tracking-wider rounded-lg transition-all cursor-pointer min-h-[52px] active:scale-95 ${
+              canComplete
                 ? 'bg-gradient-to-b from-green-700 to-green-900 text-green-100 hover:from-green-600 hover:to-green-800 border border-green-600/30 shadow-lg'
                 : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
             }`}
@@ -597,9 +642,9 @@ export function PotionBrewing({
           </button>
         </div>
 
-        {/* Right Panel - Recipe */}
-        <div className="w-56 bg-black/40 rounded-lg p-3 border border-amber-900/30 overflow-y-auto">
-          <h3 className="font-cinzel text-amber-100 text-xs mb-2">Recipe: {brewState.selectedPotion.name}</h3>
+        {/* ── Right Panel – Recipe ── */}
+        <div className={`md:w-56 bg-black/40 rounded-lg p-3 border border-amber-900/30 overflow-y-auto ${activeTab === 'recipe' ? 'flex flex-col' : 'hidden'} md:block`}>
+          <h3 className="font-cinzel text-amber-100 text-xs mb-3">Recipe: {brewState.selectedPotion.name}</h3>
 
           <div className="mb-3">
             <p className="text-[10px] text-amber-400/60 uppercase mb-1">Required Ingredients</p>
@@ -611,7 +656,7 @@ export function PotionBrewing({
                 return (
                   <div
                     key={ing.itemId}
-                    className={`text-xs flex items-center justify-between px-2 py-1 rounded ${
+                    className={`text-xs flex items-center justify-between px-2 py-1.5 rounded ${
                       isCorrect ? 'bg-green-900/20 text-green-300' :
                       isPartial ? 'bg-amber-900/20 text-amber-300' :
                       'text-amber-400/60'
@@ -647,6 +692,22 @@ export function PotionBrewing({
           </div>
         </div>
       </div>
+
+      {/* Mobile sticky footer – Complete Brewing accessible from all tabs */}
+      {activeTab !== 'cauldron' && (
+        <div className="md:hidden mt-3 pt-3 border-t border-amber-900/20">
+          <button
+            onClick={canComplete ? completeBrew : () => setActiveTab('cauldron')}
+            className={`w-full py-3 font-cinzel text-sm rounded-lg transition-all cursor-pointer active:scale-95 min-h-[48px] ${
+              canComplete
+                ? 'bg-gradient-to-b from-green-700 to-green-900 text-green-100 hover:from-green-600 hover:to-green-800 border border-green-600/30'
+                : 'bg-amber-900/20 text-amber-300 hover:bg-amber-900/30 border border-amber-900/30'
+            }`}
+          >
+            {canComplete ? 'Complete Brewing' : 'Go to Cauldron →'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,16 +1,6 @@
 # Corvenhal – Future Features
 
-## 1. Mobile Optimization
-
-### Potions Class UI
-- Redesign potions interface for mobile-first layout
-- Larger tap targets
-- Simplified ingredient selection flow
-- Reduce multi-step interactions where possible
-- Ensure responsive layout for small screens
-
-
-## 2. Major System
+## 1. Major System
 
 ### Declaring a Major
 - Player declares a major after completing one semester
@@ -27,7 +17,7 @@
 - May influence story progression
 
 
-## 3. School Economy System
+## 2. School Economy System
 
 ### Earning Money
 Player can earn currency through:
@@ -43,7 +33,7 @@ Player can earn currency through:
 - Market (expanded inventory, rare items)
 
 
-## 4. World Areas
+## 3. World Areas
 
 ### Greenhouse
 - Grow magical ingredients
@@ -61,7 +51,7 @@ Player can earn currency through:
 - Equipment upgrades
 
 
-## 5. Social Interactions
+## 4. Social Interactions
 
 ### NPCs
 - Teachers and students are interactive NPCs with persistent relationship states
@@ -84,7 +74,7 @@ Player can earn currency through:
 - Some story events or advanced content may require specific relationship levels
 
 
-## 6. Food & Rest System
+## 5. Food & Rest System
 
 ### Mana Regeneration Baseline
 - Mana regenerates passively over time at a standard rate
@@ -107,7 +97,7 @@ Player can earn currency through:
 - Thresholds and penalty values should be tunable via config
 
 
-## 7. Spell Mastery System
+## 6. Spell Mastery System
 
 ### Spell Practice
 - Player must practice spells to increase level

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { InventoryState } from './game-navigation'
 import { JournalEntry, JournalWriting, JournalViewer } from './journal-writing'
 import { useHydrated } from '@/hooks/use-hydrated'
-import { GameTime, getTimeSlot } from '@/lib/game-time'
+import { GameTime, getTimeSlot, getMoonPhaseInfo, getMoonForecast, MOON_PHASE_DATA, MoonPhase } from '@/lib/game-time'
 
 // ============================================
 // DORMITORY SCENE
@@ -22,9 +22,11 @@ interface DormitorySceneProps {
   hasVisitedShop?: boolean
   hasRequiredMaterials?: boolean
   gameTime?: GameTime
+  /** 0 = no training, 1 = Beginner, 2 = Intermediate, 3 = Advanced, 4 = Mastery */
+  astralNavigationLevel?: number
 }
 
-export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false, gameTime }: DormitorySceneProps) {
+export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false, gameTime, astralNavigationLevel = 0 }: DormitorySceneProps) {
   const hydrated = useHydrated()
   const [phase, setPhase] = useState<'explore' | 'sleep'>('explore')
   const [showContent, setShowContent] = useState(true)
@@ -249,22 +251,11 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
                   )}
 
                   {activePanel === 'window' && (
-                    <div>
-                      <h3 className="font-cinzel text-amber-100 text-lg mb-3 flex items-center gap-2">
-                        <span>🌙</span> Arched Window
-                      </h3>
-                      <p className="font-crimson text-amber-100/80 text-base leading-relaxed mb-4">
-                        Through the gothic arched window, you can see the sprawling grounds of Corvenhal Academy. 
-                        The twin moons hang low in the sky, casting silver light across the courtyard below. 
-                        In the distance, you can make out the Forbidden Forest, its trees whispering secrets 
-                        to the night wind.
-                      </p>
-                      <div className="bg-amber-950/30 rounded-lg p-4">
-                        <p className="font-crimson text-amber-200/60 text-sm italic text-center">
-                          &quot;The stars remember what mortals forget.&quot; — Inscribed on the windowsill
-                        </p>
-                      </div>
-                    </div>
+                    <WindowPanel
+                      inventory={inventory}
+                      gameTime={gameTime}
+                      astralNavigationLevel={astralNavigationLevel}
+                    />
                   )}
 
                   {activePanel === 'trunk' && (
@@ -427,6 +418,196 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
         />
       )}
     </>
+  )
+}
+
+// ============================================
+// WINDOW PANEL WITH TELESCOPE
+// ============================================
+
+interface WindowPanelProps {
+  inventory: InventoryState
+  gameTime?: GameTime
+  astralNavigationLevel: number
+}
+
+function WindowPanel({ inventory, gameTime, astralNavigationLevel }: WindowPanelProps) {
+  const [telescopeActive, setTelescopeActive] = useState(false)
+  const hasTelescope = inventory.items.some(i => i.id === 'telescope')
+  const dayNumber = gameTime?.dayNumber ?? 0
+  const phaseInfo = getMoonPhaseInfo(dayNumber)
+  const forecast = getMoonForecast(dayNumber, 12)
+
+  return (
+    <div>
+      <h3 className="font-cinzel text-amber-100 text-lg mb-3 flex items-center gap-2">
+        <span>🌙</span> Arched Window
+      </h3>
+      <p className="font-crimson text-amber-100/80 text-base leading-relaxed mb-4">
+        Through the gothic arched window, you can see the sprawling grounds of Corvenhal Academy.
+        The twin moons hang low in the sky, casting silver light across the courtyard below.
+        In the distance, you can make out the Forbidden Forest, its trees whispering secrets
+        to the night wind.
+      </p>
+
+      {/* Windowsill inscription */}
+      <div className="bg-amber-950/30 rounded-lg p-3 mb-4">
+        <p className="font-crimson text-amber-200/60 text-sm italic text-center">
+          &quot;The stars remember what mortals forget.&quot; — Inscribed on the windowsill
+        </p>
+      </div>
+
+      {/* Moon display — shown if player has any astral training or uses telescope */}
+      {astralNavigationLevel >= 1 && !telescopeActive && (
+        <div className="bg-indigo-950/30 border border-indigo-900/30 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{phaseInfo.icon}</span>
+            <div>
+              <p className="font-cinzel text-indigo-200 text-base">{phaseInfo.name}</p>
+              <p className="font-crimson text-indigo-300/60 text-xs italic">{phaseInfo.theme}</p>
+            </div>
+          </div>
+          {astralNavigationLevel >= 2 && (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="bg-black/30 rounded p-2 text-center">
+                <p className="font-crimson text-amber-400/60 text-xs">Spell Failure</p>
+                <p className={`font-cinzel text-sm ${phaseInfo.spellFailureModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  {phaseInfo.spellFailureModifier > 0 ? '+' : ''}{phaseInfo.spellFailureModifier}%
+                </p>
+              </div>
+              <div className="bg-black/30 rounded p-2 text-center">
+                <p className="font-crimson text-amber-400/60 text-xs">Potion Potency</p>
+                <p className={`font-cinzel text-sm ${phaseInfo.potionPotencyModifier >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {phaseInfo.potionPotencyModifier >= 0 ? '+' : ''}{phaseInfo.potionPotencyModifier}%
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Telescope section */}
+      {hasTelescope && !telescopeActive && (
+        <button
+          onClick={() => setTelescopeActive(true)}
+          className="w-full py-3 px-4 mb-3 font-cinzel text-sm tracking-wide bg-gradient-to-r from-indigo-900/50 to-indigo-800/30 text-indigo-200 rounded-lg border border-indigo-700/30 hover:from-indigo-800/50 hover:to-indigo-700/30 hover:border-indigo-600/50 transition-all cursor-pointer flex items-center justify-center gap-3"
+        >
+          <span className="text-2xl">🔭</span>
+          <span>Use Brass Telescope</span>
+        </button>
+      )}
+
+      {!hasTelescope && astralNavigationLevel === 0 && (
+        <div className="text-center py-2">
+          <p className="font-crimson text-amber-200/40 text-sm italic">
+            A telescope would help you study the moons more closely...
+          </p>
+        </div>
+      )}
+
+      {!hasTelescope && astralNavigationLevel >= 1 && (
+        <div className="text-center py-2">
+          <p className="font-crimson text-amber-200/40 text-sm italic">
+            A brass telescope from the school shop would let you study the moons in greater detail.
+          </p>
+        </div>
+      )}
+
+      {/* Telescope view */}
+      {telescopeActive && (
+        <div className="bg-black/70 rounded-lg border border-indigo-700/40 p-5 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🔭</span>
+              <h4 className="font-cinzel text-indigo-200 text-base">Brass Telescope View</h4>
+            </div>
+            <button
+              onClick={() => setTelescopeActive(false)}
+              className="text-amber-400/60 hover:text-amber-300 font-crimson text-sm cursor-pointer"
+            >
+              ✕ Lower telescope
+            </button>
+          </div>
+
+          {/* Big moon display */}
+          <div className="text-center mb-4">
+            <div className="text-7xl mb-3 inline-block" style={{ filter: 'drop-shadow(0 0 16px rgba(147,197,253,0.4))' }}>
+              {phaseInfo.icon}
+            </div>
+            <h4 className="font-cinzel text-amber-100 text-xl mb-1">{phaseInfo.name}</h4>
+            <p className="font-crimson text-indigo-300/70 text-sm italic mb-3">{phaseInfo.description}</p>
+          </div>
+
+          {/* Phase effects */}
+          <div className="bg-indigo-950/30 rounded-lg p-4 mb-4">
+            <p className="font-crimson text-indigo-300/60 text-xs uppercase mb-2">
+              {astralNavigationLevel === 0 ? 'What you observe' : 'Phase Effects'}
+            </p>
+            {astralNavigationLevel === 0 ? (
+              <p className="font-crimson text-amber-200/70 text-sm leading-relaxed">
+                The twin moons are in their {phaseInfo.name.toLowerCase()} phase. Without training in Astral Navigation,
+                you cannot fully interpret what this means for your magic. Enrol in Astral Navigation to learn more.
+              </p>
+            ) : (
+              <ul className="space-y-1">
+                {phaseInfo.effects.map((effect, i) => (
+                  <li key={i} className="font-crimson text-indigo-200/80 text-sm flex items-center gap-2">
+                    <span className="text-indigo-400">◆</span> {effect}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Numerical modifiers (Intermediate+) */}
+          {astralNavigationLevel >= 2 && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-black/40 rounded-lg p-3 text-center">
+                <p className="font-crimson text-amber-400/60 text-xs mb-1">Spell Failure</p>
+                <p className={`font-cinzel text-lg ${phaseInfo.spellFailureModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  {phaseInfo.spellFailureModifier > 0 ? '+' : ''}{phaseInfo.spellFailureModifier}%
+                </p>
+              </div>
+              <div className="bg-black/40 rounded-lg p-3 text-center">
+                <p className="font-crimson text-amber-400/60 text-xs mb-1">Potion Potency</p>
+                <p className={`font-cinzel text-lg ${phaseInfo.potionPotencyModifier >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {phaseInfo.potionPotencyModifier >= 0 ? '+' : ''}{phaseInfo.potionPotencyModifier}%
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Forecast (Intermediate+) */}
+          {astralNavigationLevel >= 2 && forecast.length > 0 && (
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="font-crimson text-indigo-300/60 text-xs uppercase mb-3">
+                {astralNavigationLevel >= 3 ? 'Full Cycle Forecast' : 'Upcoming Phases'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {forecast.slice(0, astralNavigationLevel >= 3 ? forecast.length : 2).map(({ dayOffset, phase }) => (
+                  <div key={dayOffset} className="flex items-center gap-2 bg-indigo-950/40 rounded-lg px-3 py-2">
+                    <span className="text-2xl">{phase.icon}</span>
+                    <div>
+                      <p className="font-cinzel text-amber-100 text-xs">{phase.name}</p>
+                      <p className="font-crimson text-indigo-300/60 text-xs">in {dayOffset} day{dayOffset !== 1 ? 's' : ''}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Prompt to take the class if untrained */}
+          {astralNavigationLevel === 0 && (
+            <div className="mt-3 bg-amber-950/20 border border-amber-800/20 rounded-lg p-3 text-center">
+              <p className="font-crimson text-amber-300/60 text-sm">
+                Enrol in <span className="text-amber-300">Astral Navigation</span> (Moonday evenings) to understand what you see.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 

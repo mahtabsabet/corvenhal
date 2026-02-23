@@ -349,6 +349,120 @@ export function formatTimeUntilClass(timeUntil: TimeUntilClass | null): string {
 }
 
 // ============================================
+// MOON PHASE SYSTEM
+// ============================================
+
+export type MoonPhase = 'new-moon' | 'waxing' | 'full-moon' | 'waning'
+
+/** Number of in-game days each moon phase lasts. Full cycle = 4 × this. */
+export const MOON_PHASE_DURATION = 3
+
+export interface MoonPhaseInfo {
+  phase: MoonPhase
+  name: string
+  icon: string
+  description: string
+  /** Positive = more spell failures; negative = fewer spell failures */
+  spellFailureModifier: number
+  potionPotencyModifier: number  // percentage bonus/penalty (e.g. +15 = +15%)
+  theme: string
+  effects: string[]
+}
+
+export const MOON_PHASE_DATA: Record<MoonPhase, MoonPhaseInfo> = {
+  'new-moon': {
+    phase: 'new-moon',
+    name: 'New Moon',
+    icon: '🌑',
+    description: 'The sky is dark and the twin moons are hidden. Magic grows unstable and unpredictable, though the shadows offer shelter from the creatures of the deep caves.',
+    spellFailureModifier: +10,
+    potionPotencyModifier: -5,
+    theme: 'Unstable magic, safer exploration',
+    effects: [
+      '+10% spell failure chance',
+      'Reduced monster aggression in caves',
+      'Lower rare material drop rate',
+      'Slight chance of minor potion mistakes',
+    ],
+  },
+  'waxing': {
+    phase: 'waxing',
+    name: 'Waxing Moon',
+    icon: '🌒',
+    description: 'The twin moons grow brighter each night. Magical energy swells across the land, making potions especially potent and steadying the hand of the careful spellcaster.',
+    spellFailureModifier: -5,
+    potionPotencyModifier: +15,
+    theme: 'Growing magical energy',
+    effects: [
+      '-5% spell failure chance',
+      '+15% potion potency',
+      'Increased alchemical efficacy',
+    ],
+  },
+  'full-moon': {
+    phase: 'full-moon',
+    name: 'Full Moon',
+    icon: '🌕',
+    description: 'Both moons blaze at their fullest. Magical intensity peaks — rare materials surface more often, but the creatures of the caves grow bold and dangerous.',
+    spellFailureModifier: +5,
+    potionPotencyModifier: 0,
+    theme: 'Peak magical intensity, high risk / high reward',
+    effects: [
+      '+5% spell failure chance (surge instability)',
+      '+20% monster strength in caves',
+      '+25% rare material drop rate',
+    ],
+  },
+  'waning': {
+    phase: 'waning',
+    name: 'Waning Moon',
+    icon: '🌘',
+    description: 'The moons retreat. Magic settles into a calm, reliable rhythm — ideal for complex spellwork and precise brewing. Creatures, too, grow quieter.',
+    spellFailureModifier: -10,
+    potionPotencyModifier: -5,
+    theme: 'Controlled and predictable magic',
+    effects: [
+      '-10% spell failure chance',
+      'Reduced monster strength',
+      'Stable, reliable magic',
+      'Slightly reduced potion potency',
+    ],
+  },
+}
+
+/** Returns the current moon phase for a given total day number. */
+export function getMoonPhase(dayNumber: number): MoonPhase {
+  const cycleLength = MOON_PHASE_DURATION * 4
+  const cycleDay = ((dayNumber % cycleLength) + cycleLength) % cycleLength
+  if (cycleDay < MOON_PHASE_DURATION) return 'new-moon'
+  if (cycleDay < MOON_PHASE_DURATION * 2) return 'waxing'
+  if (cycleDay < MOON_PHASE_DURATION * 3) return 'full-moon'
+  return 'waning'
+}
+
+/** Returns full phase info for the given day number. */
+export function getMoonPhaseInfo(dayNumber: number): MoonPhaseInfo {
+  return MOON_PHASE_DATA[getMoonPhase(dayNumber)]
+}
+
+/**
+ * Returns the upcoming phases in order, starting from the day after dayNumber.
+ * Used by the intermediate/advanced forecast UI.
+ */
+export function getMoonForecast(dayNumber: number, days: number = 9): Array<{ dayOffset: number; phase: MoonPhaseInfo }> {
+  const forecast: Array<{ dayOffset: number; phase: MoonPhaseInfo }> = []
+  for (let i = 1; i <= days; i++) {
+    const info = getMoonPhaseInfo(dayNumber + i)
+    // Only add when the phase changes (first day of each new phase)
+    const prevInfo = getMoonPhaseInfo(dayNumber + i - 1)
+    if (info.phase !== prevInfo.phase || i === 1) {
+      forecast.push({ dayOffset: i, phase: info })
+    }
+  }
+  return forecast
+}
+
+// ============================================
 // TIME SLOT DISPLAY
 // ============================================
 

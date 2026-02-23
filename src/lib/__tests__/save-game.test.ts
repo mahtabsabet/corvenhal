@@ -47,6 +47,7 @@ function makeSave(overrides: Partial<SaveGame> = {}): SaveGame {
       minute: 0,
       dayNumber: 1,
     },
+    astralNavigationLevel: 0,
     ...overrides,
   }
 }

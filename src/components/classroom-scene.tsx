@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Spell, PotionRecipe, SpellSchool, SPELL_SCHOOLS_INFO, TIER_INFO, SPELL_LIBRARY, POTION_LIBRARY } from '@/lib/spells'
 import { PotionBrewing } from './potion-brewing'
+import { GameTime, getMoonPhaseInfo, getMoonForecast, MOON_PHASE_DATA, MoonPhase } from '@/lib/game-time'
 
 // ============================================
 // TYPES
@@ -20,6 +21,10 @@ interface ClassroomSceneProps {
   onLearnPotion: (potion: PotionRecipe) => void
   onPracticeSpell: (spellId: string) => void
   onLeave: () => void
+  gameTime?: GameTime
+  /** 0 = untrained, 1 = Beginner, 2 = Intermediate, 3 = Advanced, 4 = Mastery */
+  astralNavigationLevel?: number
+  onAdvanceAstralLevel?: () => void
 }
 
 interface ClassInfo {
@@ -106,7 +111,10 @@ export function ClassroomScene({
   onLearnSpell,
   onLearnPotion,
   onPracticeSpell,
-  onLeave
+  onLeave,
+  gameTime,
+  astralNavigationLevel = 0,
+  onAdvanceAstralLevel,
 }: ClassroomSceneProps) {
   const [phase, setPhase] = useState<'entrance' | 'lecture' | 'practice' | 'complete'>('entrance')
   const [showContent, setShowContent] = useState(false)
@@ -128,7 +136,7 @@ export function ClassroomScene({
   const practiceSpells = learnedSpells.filter(s => s.school === classInfo.school)
 
   // Lecture content based on class type
-  const lectureContent = getLectureContent(classType, playerName, classInfo.professor)
+  const lectureContent = getLectureContent(classType, playerName, classInfo.professor, astralNavigationLevel)
 
   useEffect(() => {
     const t = setTimeout(() => setShowContent(true), 300)
@@ -378,6 +386,22 @@ export function ClassroomScene({
 
   // Practice phase
   if (phase === 'practice') {
+    // Special handling for Astral Navigation - show moon observation interface
+    if (classType === 'divination') {
+      return (
+        <AstralNavigationPractice
+          playerName={playerName}
+          gameTime={gameTime}
+          astralNavigationLevel={astralNavigationLevel}
+          onComplete={() => {
+            onAdvanceAstralLevel?.()
+            setPhase('complete')
+          }}
+          onSkip={() => setPhase('complete')}
+        />
+      )
+    }
+
     // Special handling for Potions class - show brewing interface
     if (classType === 'potions') {
       return (
@@ -636,7 +660,7 @@ export function ClassroomScene({
 // LECTURE CONTENT GENERATOR
 // ============================================
 
-function getLectureContent(classType: ClassType, playerName: string, professorName: string) {
+function getLectureContent(classType: ClassType, playerName: string, professorName: string, astralNavigationLevel: number = 0) {
   const lectures: Record<ClassType, LectureItem[]> = {
     elemental: [
       {
@@ -698,28 +722,7 @@ function getLectureContent(classType: ClassType, playerName: string, professorNa
         text: 'The color will shift from clear to deep crimson when the potion is properly brewed. If it turns orange, you\'ve stirred too quickly. If it turns pink, the cauldron was too hot. Practice until you achieve consistency.'
       }
     ],
-    divination: [
-      {
-        type: 'dialogue',
-        text: `${playerName}, welcome to Astral Navigation. Here we learn to peer beyond the veil of time and space—to glimpse what has been, what is, and what may yet come to pass.`
-      },
-      {
-        type: 'dialogue',
-        text: 'Divination is perhaps the most misunderstood of the magical arts. It is not about predicting the future with certainty—the future is a river with many branching streams. Rather, it is about perceiving possibilities.'
-      },
-      {
-        type: 'dialogue',
-        text: 'The stars do not compel—they suggest. The cards do not command—they advise. A skilled diviner learns to interpret signs and symbols, helping others navigate the uncertain waters of fate.'
-      },
-      {
-        type: 'demonstration',
-        spellIcon: '🔮',
-        spellName: 'Scrying',
-        incantation: 'REH-veh-loh',
-        description: 'By focusing your mind on a reflective surface—a crystal ball, a pool of water, even a polished mirror—you can extend your perception beyond your physical location.',
-        effects: ['See distant locations', 'Perceive magical auras', 'Requires deep concentration']
-      }
-    ],
+    divination: getDivinationLecture(playerName, astralNavigationLevel),
     transmutation: [
       {
         type: 'dialogue',
@@ -821,4 +824,351 @@ interface LectureItem {
   incantation?: string
   description?: string
   effects?: string[]
+}
+
+// ============================================
+// ASTRAL NAVIGATION LECTURE CONTENT
+// ============================================
+
+function getDivinationLecture(playerName: string, level: number): LectureItem[] {
+  const LEVEL_NAMES = ['', 'Beginner', 'Intermediate', 'Advanced', 'Mastery']
+
+  if (level === 0) {
+    // First-ever class — Beginner lesson
+    return [
+      {
+        type: 'dialogue',
+        text: `${playerName}, welcome to Astral Navigation. This course is not about vague prophecy or mystical mumbling. We deal in something far more precise: the twin lunar cycle of Corvenhal, and how the moons shape the flow of magic itself.`,
+      },
+      {
+        type: 'dialogue',
+        text: 'The twin moons follow a repeating pattern of four distinct phases. Each phase lasts three days, giving us a complete cycle of twelve days. As above, so below — these phases alter spells, potions, and even the temperament of cave-dwelling creatures.',
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '🌑',
+        spellName: 'New Moon',
+        incantation: '(Phase One)',
+        description: 'When both moons are dark, ambient magic becomes unstable. Spells are more prone to failure, though the darkness keeps cave monsters cautious. Potions brewed now carry a small risk of minor mistakes.',
+        effects: ['Increased spell failure chance', 'Reduced monster aggression', 'Lower rare material drops'],
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '🌒',
+        spellName: 'Waxing Moon',
+        incantation: '(Phase Two)',
+        description: 'As the moons grow, so does magical energy. Potions become more potent — moonpetals and moonseed especially so. Spell failure chance drops slightly. This is the alchemist\'s favourite phase.',
+        effects: ['+15% potion potency', 'Reduced spell failure chance', 'Ideal for brewing'],
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '🌕',
+        spellName: 'Full Moon',
+        incantation: '(Phase Three)',
+        description: 'At the peak of the cycle, raw magic surges to its highest intensity. Rare materials surface in caves, but so do far more dangerous creatures. Spells gain power but also instability. High risk, high reward.',
+        effects: ['+25% rare material drops', '+20% monster strength', 'Increased spell instability'],
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '🌘',
+        spellName: 'Waning Moon',
+        incantation: '(Phase Four)',
+        description: 'As the moons fade, magic becomes calm and predictable. This is the ideal phase for complex, precise spellwork. Monster aggression drops. The waning moon favours patience and skill over raw power.',
+        effects: ['-10% spell failure chance', 'Stable, reliable casting', 'Reduced monster strength'],
+      },
+      {
+        type: 'dialogue',
+        text: 'By the end of this course, you will be able to read the lunar cycle at a glance and use it to your advantage. Tonight, we will practice observation. Look to the sky — what phase do you see?',
+      },
+    ]
+  }
+
+  if (level === 1) {
+    // Second class — Intermediate lesson
+    return [
+      {
+        type: 'dialogue',
+        text: `Good to see you again, ${playerName}. You have learned to name the four phases. Now we go deeper: how exactly does the lunar cycle influence the arcane?`,
+      },
+      {
+        type: 'dialogue',
+        text: 'Magic is not a static force. It ebbs and flows with the moons like a tide. A spell cast at the New Moon carries the same incantation, the same wand movement — but the magical substrate it travels through is far more turbulent.',
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '📊',
+        spellName: 'Lunar Spell Modifiers',
+        incantation: '(Intermediate Theory)',
+        description: 'Each phase applies a numerical modifier to your base spell failure chance. These stack with your casting skill — a master caster is affected less, but never completely immune.',
+        effects: [
+          'New Moon: +10% failure chance',
+          'Waxing: −5% failure chance',
+          'Full Moon: +5% failure chance',
+          'Waning: −10% failure chance',
+        ],
+      },
+      {
+        type: 'dialogue',
+        text: 'Skilled navigators can mitigate the New Moon penalty and harness the Waning Moon bonus. You will unlock numerical modifier displays in your UI — these will tell you at a glance how the current phase is affecting your magic.',
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '🔮',
+        spellName: 'Phase Forecasting',
+        incantation: '(Applied Navigation)',
+        description: 'By charting the current position in the cycle, you can predict when each phase will next arrive. A skilled navigator plans their most dangerous spellwork for the Waning Moon and brews potions during the Waxing phase.',
+        effects: ['Forecast the next moon phase', 'Plan spellwork and brewing strategically', 'Unlock the phase forecast panel'],
+      },
+    ]
+  }
+
+  if (level === 2) {
+    // Third class — Advanced lesson
+    return [
+      {
+        type: 'dialogue',
+        text: `${playerName}, you have mastered prediction. Now let us speak of mastery — the art of bending the lunar cycle to your advantage, not merely accommodating it.`,
+      },
+      {
+        type: 'dialogue',
+        text: 'The Full Moon is the most misunderstood phase. Students fear its instability. But a prepared mage can exploit its intensity: rare materials, enhanced spells, and a heightened magical environment are available to those bold enough to seize them.',
+      },
+      {
+        type: 'demonstration',
+        spellIcon: '⚡',
+        spellName: 'Peak Lunar Strategy',
+        incantation: '(Advanced Techniques)',
+        description: 'Advanced practitioners can reduce the spell failure penalties of unfavourable phases and amplify the bonuses of favourable ones. Your training reduces negative lunar penalties by 50%.',
+        effects: [
+          'Full cycle forecast unlocked',
+          'Reduced spell failure penalties from phases',
+          'Bonus spell effectiveness during Waning Moon',
+          'Optimal brewing windows highlighted',
+        ],
+      },
+      {
+        type: 'dialogue',
+        text: 'Your homework: log a complete twelve-day cycle in your journal. Note how your spell success rates shift. Pay particular attention to the boundary between the Waning and New Moon — it is the single most dramatic transition in the cycle.',
+      },
+    ]
+  }
+
+  // Level 3+ — Mastery lesson
+  return [
+    {
+      type: 'dialogue',
+      text: `${playerName}. You have come far. Most students leave this class after three sessions. You stayed. That is the difference between a competent mage and a true Astral Navigator.`,
+    },
+    {
+      type: 'dialogue',
+      text: 'At the mastery level, the lunar penalties no longer affect you. Your understanding of the cycle is so complete that your subconscious adjusts your spellwork automatically. The moons become allies, not obstacles.',
+    },
+    {
+      type: 'demonstration',
+      spellIcon: '🌟',
+      spellName: 'Lunar Mastery',
+      incantation: '(Mastery Level)',
+      description: 'A master navigator is fully immune to negative lunar spell penalties. During the Waning Moon, they gain enhanced spell effectiveness. During the Full Moon, the bonus to rare material drops increases further.',
+      effects: [
+        'Full immunity to negative lunar spell penalties',
+        'Increased bonuses during favourable phases',
+        'Complete twelve-day cycle forecast',
+        'One minor lunar ritual per cycle (coming soon)',
+      ],
+    },
+    {
+      type: 'dialogue',
+      text: 'The stars remember what mortals forget. You, ${playerName}, will not forget. Go now — and use what you know.',
+    },
+  ]
+}
+
+// ============================================
+// ASTRAL NAVIGATION PRACTICE COMPONENT
+// ============================================
+
+interface AstralNavigationPracticeProps {
+  playerName: string
+  gameTime?: GameTime
+  astralNavigationLevel: number
+  onComplete: () => void
+  onSkip: () => void
+}
+
+function AstralNavigationPractice({ playerName, gameTime, astralNavigationLevel, onComplete, onSkip }: AstralNavigationPracticeProps) {
+  const [observed, setObserved] = useState(false)
+  const [selectedPhase, setSelectedPhase] = useState<MoonPhase | null>(null)
+  const [showResult, setShowResult] = useState(false)
+
+  const dayNumber = gameTime?.dayNumber ?? 1
+  const currentPhaseInfo = getMoonPhaseInfo(dayNumber)
+  const forecast = getMoonForecast(dayNumber, 9)
+
+  const PHASES: MoonPhase[] = ['new-moon', 'waxing', 'full-moon', 'waning']
+  const LEVEL_LABELS = ['', 'Beginner', 'Intermediate', 'Advanced', 'Mastery']
+  const nextLevel = Math.min(astralNavigationLevel + 1, 4)
+
+  const handleIdentify = (phase: MoonPhase) => {
+    setSelectedPhase(phase)
+    setShowResult(true)
+    setObserved(true)
+  }
+
+  const isCorrect = selectedPhase === currentPhaseInfo.phase
+
+  return (
+    <div className="relative min-h-full w-full">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#05040a] via-[#0d0b18] to-[#05040a]" />
+
+      {/* Stars effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-white/60"
+            style={{
+              left: `${(i * 37 + 5) % 95}%`,
+              top: `${(i * 23 + 3) % 55}%`,
+              opacity: 0.3 + ((i * 0.07) % 0.6),
+              animation: `pulse ${2 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${(i * 0.3) % 2}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 min-h-full flex flex-col p-4 pb-16">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-cinzel text-amber-100 text-xl">Lunar Observation</h2>
+            <p className="font-crimson text-indigo-400/60 text-sm">Astral Navigation — Practice</p>
+          </div>
+          <button
+            onClick={onSkip}
+            className="px-4 py-2 font-crimson text-sm bg-amber-900/20 text-amber-300 rounded-lg hover:bg-amber-900/30 transition-all cursor-pointer"
+          >
+            Skip
+          </button>
+        </div>
+
+        <div className="max-w-3xl mx-auto w-full space-y-4">
+          {/* Moon display */}
+          <div className="bg-black/60 backdrop-blur-sm rounded-lg border border-indigo-900/40 p-6 text-center">
+            <p className="font-crimson text-indigo-300/70 text-sm mb-4 italic">
+              You raise your gaze to the arched window and study the twin moons of Corvenhal...
+            </p>
+            <div className="text-8xl mb-4 animate-pulse" style={{ animationDuration: '4s' }}>
+              {observed ? currentPhaseInfo.icon : '🌌'}
+            </div>
+            {!observed && (
+              <p className="font-crimson text-amber-200/60 text-base">
+                The twin moons hang in the night sky. Study them carefully, then identify the phase below.
+              </p>
+            )}
+            {observed && (
+              <div>
+                <h3 className="font-cinzel text-amber-100 text-xl mb-1">{currentPhaseInfo.name}</h3>
+                <p className="font-crimson text-indigo-300/70 text-sm italic">{currentPhaseInfo.theme}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Phase identification — only if not yet observed */}
+          {!observed && (
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-amber-900/30 p-5">
+              <h3 className="font-cinzel text-amber-100 text-sm mb-4 text-center">What phase are the moons in?</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {PHASES.map(phase => {
+                  const info = MOON_PHASE_DATA[phase]
+                  return (
+                    <button
+                      key={phase}
+                      onClick={() => handleIdentify(phase)}
+                      className="p-4 rounded-lg border border-indigo-900/30 bg-indigo-950/20 hover:bg-indigo-900/30 hover:border-indigo-700/50 transition-all cursor-pointer text-center"
+                    >
+                      <span className="text-3xl block mb-2">{info.icon}</span>
+                      <span className="font-crimson text-amber-100 text-sm">{info.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Result */}
+          {showResult && (
+            <div className={`rounded-lg border p-5 ${isCorrect ? 'bg-green-900/20 border-green-700/30' : 'bg-amber-900/20 border-amber-700/30'}`}>
+              {isCorrect ? (
+                <>
+                  <p className="font-cinzel text-green-300 text-base mb-1">✦ Correct! Well observed, {playerName}.</p>
+                  <p className="font-crimson text-green-200/70 text-sm leading-relaxed mb-3">
+                    {currentPhaseInfo.description}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-cinzel text-amber-300 text-base mb-1">Not quite — the current phase is {currentPhaseInfo.name}.</p>
+                  <p className="font-crimson text-amber-200/70 text-sm leading-relaxed mb-3">
+                    {currentPhaseInfo.description}
+                  </p>
+                </>
+              )}
+
+              {/* Phase effects */}
+              <div className="bg-black/30 rounded-lg p-3 mb-3">
+                <p className="font-crimson text-amber-400/60 text-xs uppercase mb-2">Current Phase Effects</p>
+                <ul className="space-y-1">
+                  {currentPhaseInfo.effects.map((effect, i) => (
+                    <li key={i} className="font-crimson text-amber-200/80 text-sm flex items-center gap-2">
+                      <span className="text-indigo-400">◆</span> {effect}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Forecast (Intermediate+ only) */}
+              {astralNavigationLevel >= 1 && forecast.length > 0 && (
+                <div className="bg-black/30 rounded-lg p-3 mb-3">
+                  <p className="font-crimson text-amber-400/60 text-xs uppercase mb-2">Upcoming Phases</p>
+                  <div className="flex gap-3 flex-wrap">
+                    {forecast.slice(0, astralNavigationLevel >= 2 ? 4 : 2).map(({ dayOffset, phase }) => (
+                      <div key={dayOffset} className="flex items-center gap-1.5 bg-indigo-950/30 rounded px-2 py-1">
+                        <span className="text-lg">{phase.icon}</span>
+                        <div>
+                          <p className="font-cinzel text-amber-100 text-xs">{phase.name}</p>
+                          <p className="font-crimson text-indigo-300/60 text-xs">in {dayOffset}d</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Level up notification */}
+              {nextLevel > astralNavigationLevel && (
+                <div className="bg-indigo-900/20 border border-indigo-700/30 rounded-lg p-3 mb-3">
+                  <p className="font-cinzel text-indigo-300 text-sm">
+                    ✦ Advancing to {LEVEL_LABELS[nextLevel]} level
+                  </p>
+                  <p className="font-crimson text-indigo-200/60 text-xs mt-1">
+                    {nextLevel === 1 && 'Unlocks: Moon phase HUD indicator + basic tooltips'}
+                    {nextLevel === 2 && 'Unlocks: Phase forecast + numerical modifiers + reduced penalties'}
+                    {nextLevel === 3 && 'Unlocks: Full cycle forecast + bonus effectiveness + reduced spell failure'}
+                    {nextLevel === 4 && 'Unlocks: Full immunity to negative lunar penalties + increased bonuses'}
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={onComplete}
+                className="w-full py-3 font-cinzel text-base tracking-wider bg-gradient-to-b from-indigo-700 to-indigo-900 text-indigo-100 rounded-lg border border-indigo-600/30 hover:from-indigo-600 hover:to-indigo-800 transition-all cursor-pointer"
+              >
+                Complete Observation
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }

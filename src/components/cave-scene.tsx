@@ -589,7 +589,9 @@ export function CaveScene({
             </span>
             <div className="flex items-center gap-1.5">
               <span className="text-sm">{moonInfo.icon}</span>
-              <span className="font-crimson text-stone-400/70 text-xs">{moonInfo.name}</span>
+              <span className="font-crimson text-stone-400/70 text-xs">
+                {phaseIsKnown ? moonInfo.name : '???'}
+              </span>
             </div>
           </div>
 

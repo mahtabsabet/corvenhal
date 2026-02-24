@@ -1,7 +1,7 @@
 import { InventoryState } from '@/lib/inventory'
 import { JournalEntry } from '@/components/journal-writing'
 import { Spell, PotionRecipe } from '@/lib/spells'
-import { GameTime } from '@/lib/game-time'
+import { GameTime, MoonPhase } from '@/lib/game-time'
 
 // GameLocation is defined in game-navigation - inline the type here to avoid circular deps
 type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom' | 'cave'
@@ -27,10 +27,12 @@ export interface SaveGame {
   gameTime: GameTime
   /** 0 = no training, 1 = Beginner, 2 = Intermediate, 3 = Advanced, 4 = Mastery */
   astralNavigationLevel: number
+  /** Moon phases the player has personally observed through a telescope (requires astralNavigationLevel >= 1) */
+  observedMoonPhases: MoonPhase[]
 }
 
 export const SAVE_KEY = 'arcana-mystica-save'
-export const SAVE_VERSION = 8  // Bumped for moon phase system + astral navigation level
+export const SAVE_VERSION = 9  // Bumped for observedMoonPhases (telescope fog-of-war)
 
 // ============================================
 // SAVE/LOAD FUNCTIONS

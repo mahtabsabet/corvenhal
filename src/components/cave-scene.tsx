@@ -46,6 +46,8 @@ interface CaveSceneProps {
   maxMana: number
   inventory: InventoryState
   gameTime: GameTime
+  astralNavigationLevel: number
+  observedMoonPhases: string[]
   onLeaveCave: () => void
   onUpdateMana: (newMana: number) => void
   onGainGold: (amount: number) => void
@@ -66,6 +68,8 @@ export function CaveScene({
   maxMana,
   inventory,
   gameTime,
+  astralNavigationLevel,
+  observedMoonPhases,
   onLeaveCave,
   onUpdateMana,
   onGainGold,
@@ -75,6 +79,10 @@ export function CaveScene({
   const moonInfo = getMoonPhaseInfo(gameTime.dayNumber)
   const monsterMoonMod = getMonsterMoonMod(moonInfo.phase)
   const isFullMoon = moonInfo.phase === 'full-moon'
+  /** Player has observed this specific phase through the telescope after astral nav training */
+  const phaseIsKnown = astralNavigationLevel >= 1 && observedMoonPhases.includes(moonInfo.phase)
+  /** Player understands the numerical effects (astral nav level 2+, phase observed) */
+  const phaseEffectsKnown = astralNavigationLevel >= 2 && phaseIsKnown
   /** Flat bonus damage from potion knowledge: +2 per 2 recipes, max +6 */
   const potionBonus = Math.min(6, Math.floor(learnedPotions.length / 2) * 2)
   /** Player max HP: base + 2 per learned spell, capped at 80 */
@@ -313,22 +321,42 @@ export function CaveScene({
             <p className="font-crimson text-amber-400/60 text-sm italic">Three levels. Monsters grow with every descent.</p>
           </div>
 
-          {/* Moon phase warning */}
+          {/* Moon phase */}
           <div className={`rounded-lg border p-4 ${
-            isFullMoon ? 'border-orange-700/50 bg-orange-950/30' : 'border-amber-900/30 bg-amber-950/20'
+            isFullMoon && phaseIsKnown ? 'border-orange-700/50 bg-orange-950/30' : 'border-amber-900/30 bg-amber-950/20'
           }`}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-2xl">{moonInfo.icon}</span>
-              <span className="font-cinzel text-amber-100 text-sm">{moonInfo.name}</span>
+              <span className="font-cinzel text-amber-100 text-sm">
+                {phaseIsKnown ? moonInfo.name : 'Unknown Phase'}
+              </span>
             </div>
-            <p className="font-crimson text-amber-300/70 text-sm">{moonInfo.description}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {moonInfo.effects.map((e, i) => (
-                <span key={i} className="font-crimson text-amber-400/60 text-xs bg-black/30 rounded px-2 py-0.5">
-                  {e}
-                </span>
-              ))}
-            </div>
+
+            {phaseIsKnown ? (
+              <>
+                <p className="font-crimson text-amber-300/70 text-sm">{moonInfo.description}</p>
+                {phaseEffectsKnown && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {moonInfo.effects.map((e, i) => (
+                      <span key={i} className="font-crimson text-amber-400/60 text-xs bg-black/30 rounded px-2 py-0.5">
+                        {e}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {!phaseEffectsKnown && (
+                  <p className="font-crimson text-amber-400/40 text-xs mt-2 italic">
+                    Continue Astral Navigation training to understand this phase's effects.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="font-crimson text-amber-400/40 text-sm italic">
+                The twin moons glow above — but their significance escapes you.
+                Observe this phase through a telescope after studying Astral Navigation
+                to understand how it affects your magic.
+              </p>
+            )}
           </div>
 
           {/* Player stats */}
@@ -350,11 +378,11 @@ export function CaveScene({
               <span className="font-crimson text-amber-200/80">Potion Knowledge Bonus</span>
               <span className="font-cinzel text-amber-300">+{potionBonus} dmg</span>
             </div>
-            {moonMod !== 0 && (
+            {phaseEffectsKnown && moonInfo.spellFailureModifier !== 0 && (
               <div className="flex justify-between text-sm">
                 <span className="font-crimson text-amber-200/80">Moon spell modifier</span>
-                <span className={`font-cinzel text-sm ${moonMod > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                  {moonMod > 0 ? `+${moonMod}% failure` : `${moonMod}% failure`}
+                <span className={`font-cinzel text-sm ${moonInfo.spellFailureModifier > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  {moonInfo.spellFailureModifier > 0 ? `+${moonInfo.spellFailureModifier}% failure` : `${moonInfo.spellFailureModifier}% failure`}
                 </span>
               </div>
             )}
@@ -596,8 +624,8 @@ export function CaveScene({
                 </div>
               )}
 
-              {/* Moon modifier */}
-              {monsterMoonMod !== 0 && (
+              {/* Moon modifier — only shown if player understands this phase */}
+              {phaseEffectsKnown && monsterMoonMod !== 0 && (
                 <div className={`text-xs font-crimson flex items-center gap-1 ${monsterMoonMod > 0 ? 'text-red-400/70' : 'text-green-400/70'}`}>
                   <span>{moonInfo.icon}</span>
                   <span>{monsterMoonMod > 0 ? `+${monsterMoonMod}%` : `${monsterMoonMod}%`} monster strength</span>

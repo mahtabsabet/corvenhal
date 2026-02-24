@@ -24,9 +24,11 @@ interface DormitorySceneProps {
   gameTime?: GameTime
   /** 0 = no training, 1 = Beginner, 2 = Intermediate, 3 = Advanced, 4 = Mastery */
   astralNavigationLevel?: number
+  /** Called when the player observes the current moon phase through the telescope (requires astralNavigationLevel >= 1) */
+  onObserveMoonPhase?: (phase: string) => void
 }
 
-export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false, gameTime, astralNavigationLevel = 0 }: DormitorySceneProps) {
+export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJournalEntry, onHeadToClass, onAdvanceTime, onGoToCommonRoom, hasVisitedShop = false, hasRequiredMaterials = false, gameTime, astralNavigationLevel = 0, onObserveMoonPhase }: DormitorySceneProps) {
   const hydrated = useHydrated()
   const [phase, setPhase] = useState<'explore' | 'sleep'>('explore')
   const [showContent, setShowContent] = useState(true)
@@ -255,6 +257,7 @@ export function DormitoryScene({ playerName, inventory, journalEntries, onSaveJo
                       inventory={inventory}
                       gameTime={gameTime}
                       astralNavigationLevel={astralNavigationLevel}
+                      onObserveMoonPhase={onObserveMoonPhase}
                     />
                   )}
 
@@ -429,9 +432,10 @@ interface WindowPanelProps {
   inventory: InventoryState
   gameTime?: GameTime
   astralNavigationLevel: number
+  onObserveMoonPhase?: (phase: string) => void
 }
 
-function WindowPanel({ inventory, gameTime, astralNavigationLevel }: WindowPanelProps) {
+function WindowPanel({ inventory, gameTime, astralNavigationLevel, onObserveMoonPhase }: WindowPanelProps) {
   const [telescopeActive, setTelescopeActive] = useState(false)
   const hasTelescope = inventory.items.some(i => i.id === 'telescope')
   const dayNumber = gameTime?.dayNumber ?? 0
@@ -489,7 +493,12 @@ function WindowPanel({ inventory, gameTime, astralNavigationLevel }: WindowPanel
       {/* Telescope section */}
       {hasTelescope && !telescopeActive && (
         <button
-          onClick={() => setTelescopeActive(true)}
+          onClick={() => {
+            setTelescopeActive(true)
+            if (astralNavigationLevel >= 1) {
+              onObserveMoonPhase?.(phaseInfo.phase)
+            }
+          }}
           className="w-full py-3 px-4 mb-3 font-cinzel text-sm tracking-wide bg-gradient-to-r from-indigo-900/50 to-indigo-800/30 text-indigo-200 rounded-lg border border-indigo-700/30 hover:from-indigo-800/50 hover:to-indigo-700/30 hover:border-indigo-600/50 transition-all cursor-pointer flex items-center justify-center gap-3"
         >
           <span className="text-2xl">🔭</span>

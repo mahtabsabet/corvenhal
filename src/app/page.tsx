@@ -71,6 +71,9 @@ export default function Home() {
   // Astral Navigation level (0 = untrained, 1–4 = Beginner→Mastery)
   const [astralNavigationLevel, setAstralNavigationLevel] = useState(0)
 
+  // Moon phases observed through the telescope (requires astralNavigationLevel >= 1)
+  const [observedMoonPhases, setObservedMoonPhases] = useState<string[]>([])
+
   // Current class type for classroom
   const [currentClassType, setCurrentClassType] = useState<ClassType>('elemental')
 
@@ -107,6 +110,7 @@ export default function Home() {
       setMaxMana(saved.maxMana ?? 100)
       setGameTime(saved.gameTime ?? getDefaultGameTime())
       setAstralNavigationLevel(saved.astralNavigationLevel ?? 0)
+      setObservedMoonPhases(saved.observedMoonPhases ?? [])
     }
   }, [])
 
@@ -130,10 +134,11 @@ export default function Home() {
       maxMana,
       gameTime,
       astralNavigationLevel,
+      observedMoonPhases,
     }
 
     saveGame(saveData)
-  }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime, astralNavigationLevel])
+  }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime, astralNavigationLevel, observedMoonPhases])
 
   // Real-time game clock: 10 in-game minutes per 7 real seconds.
   // Only ticks from day 1 (Moonday morning, after the player first wakes up).
@@ -250,6 +255,7 @@ export default function Home() {
     setMaxMana(100)
     setGameTime(getDefaultGameTime())
     setAstralNavigationLevel(0)
+    setObservedMoonPhases([])
     setShowRestartModal(false)
     setSavedPlayerName(undefined)
   }, [])
@@ -263,6 +269,11 @@ export default function Home() {
   // Advance astral navigation level (capped at 4 = Mastery)
   const handleAdvanceAstralLevel = useCallback(() => {
     setAstralNavigationLevel(prev => Math.min(4, prev + 1))
+  }, [])
+
+  // Record a moon phase as observed (from dormitory telescope, requires astral nav >= 1)
+  const handleObserveMoonPhase = useCallback((phase: string) => {
+    setObservedMoonPhases(prev => prev.includes(phase) ? prev : [...prev, phase])
   }, [])
 
   // Spell handlers
@@ -436,6 +447,7 @@ export default function Home() {
             hasVisitedShop={hasVisitedShop}
             hasRequiredMaterials={checkHasRequiredMaterials(inventory)}
             gameTime={gameTime}
+            onObserveMoonPhase={handleObserveMoonPhase}
           />
         )}
 
@@ -456,6 +468,8 @@ export default function Home() {
             maxMana={maxMana}
             inventory={inventory}
             gameTime={gameTime}
+            astralNavigationLevel={astralNavigationLevel}
+            observedMoonPhases={observedMoonPhases}
             onLeaveCave={() => setCurrentLocation('academy')}
             onUpdateMana={setCurrentMana}
             onGainGold={handleGainGold}

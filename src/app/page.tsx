@@ -67,6 +67,9 @@ export default function Home() {
   // Game time
   const [gameTime, setGameTime] = useState<GameTime>(getDefaultGameTime())
 
+  // Astral Navigation level (0 = untrained, 1–4 = Beginner→Mastery)
+  const [astralNavigationLevel, setAstralNavigationLevel] = useState(0)
+
   // Current class type for classroom
   const [currentClassType, setCurrentClassType] = useState<ClassType>('elemental')
 
@@ -102,6 +105,7 @@ export default function Home() {
       setCurrentMana(saved.currentMana ?? 100)
       setMaxMana(saved.maxMana ?? 100)
       setGameTime(saved.gameTime ?? getDefaultGameTime())
+      setAstralNavigationLevel(saved.astralNavigationLevel ?? 0)
     }
   }, [])
 
@@ -124,10 +128,11 @@ export default function Home() {
       currentMana,
       maxMana,
       gameTime,
+      astralNavigationLevel,
     }
 
     saveGame(saveData)
-  }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime])
+  }, [isLoaded, playerName, gameState, currentLocation, inventory, hasMetHeadmistress, hasVisitedShop, journalEntries, learnedSpells, learnedPotions, currentMana, maxMana, gameTime, astralNavigationLevel])
 
   // Real-time game clock: 10 in-game minutes per 7 real seconds.
   // Only ticks from day 1 (Moonday morning, after the player first wakes up).
@@ -243,6 +248,7 @@ export default function Home() {
     setCurrentMana(100)
     setMaxMana(100)
     setGameTime(getDefaultGameTime())
+    setAstralNavigationLevel(0)
     setShowRestartModal(false)
     setSavedPlayerName(undefined)
   }, [])
@@ -251,6 +257,11 @@ export default function Home() {
   const handleLeaveClass = useCallback(() => {
     setGameTime(prev => advanceTime(prev, 2))
     setCurrentLocation('academy')
+  }, [])
+
+  // Advance astral navigation level (capped at 4 = Mastery)
+  const handleAdvanceAstralLevel = useCallback(() => {
+    setAstralNavigationLevel(prev => Math.min(4, prev + 1))
   }, [])
 
   // Spell handlers
@@ -391,6 +402,7 @@ export default function Home() {
             journalEntries={journalEntries}
             onSaveJournalEntry={handleSaveJournalEntry}
             onHeadToClass={() => setCurrentLocation('classroom')}
+            astralNavigationLevel={astralNavigationLevel}
             onAdvanceTime={() => setGameTime(prev => {
               const afterSleep = advanceTime(prev, 12)
               // If sleeping would skip past a class start, wake up at that class instead
@@ -430,6 +442,9 @@ export default function Home() {
             onLearnPotion={handleLearnPotion}
             onPracticeSpell={handlePracticeSpell}
             onLeave={handleLeaveClass}
+            gameTime={gameTime}
+            astralNavigationLevel={astralNavigationLevel}
+            onAdvanceAstralLevel={handleAdvanceAstralLevel}
           />
         )}
       </div>

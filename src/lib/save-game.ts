@@ -25,10 +25,12 @@ export interface SaveGame {
   currentMana: number
   maxMana: number
   gameTime: GameTime
+  /** 0 = no training, 1 = Beginner, 2 = Intermediate, 3 = Advanced, 4 = Mastery */
+  astralNavigationLevel: number
 }
 
 export const SAVE_KEY = 'arcana-mystica-save'
-export const SAVE_VERSION = 7  // Bumped for original spell names (IP-safe)
+export const SAVE_VERSION = 8  // Bumped for moon phase system + astral navigation level
 
 // ============================================
 // SAVE/LOAD FUNCTIONS

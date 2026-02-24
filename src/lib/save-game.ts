@@ -4,7 +4,7 @@ import { Spell, PotionRecipe } from '@/lib/spells'
 import { GameTime } from '@/lib/game-time'
 
 // GameLocation is defined in game-navigation - inline the type here to avoid circular deps
-type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom'
+type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom' | 'cave'
 
 // ============================================
 // SAVE GAME TYPES

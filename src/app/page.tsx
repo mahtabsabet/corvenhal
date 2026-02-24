@@ -7,6 +7,7 @@ import { GrandHallScene } from '@/components/grand-hall-scene'
 import { SchoolShop } from '@/components/school-shop'
 import { DormitoryScene } from '@/components/dormitory-scene'
 import { CommonRoomScene } from '@/components/common-room-scene'
+import { CaveScene } from '@/components/cave-scene'
 import { ClassroomScene, ClassType } from '@/components/classroom-scene'
 import {
   NavigationSidebar,
@@ -307,6 +308,20 @@ export default function Home() {
     }
   }, [currentMana])
 
+  const handleGainGold = useCallback((amount: number) => {
+    setInventory(prev => ({ ...prev, gold: prev.gold + amount }))
+  }, [])
+
+  const handleGainItems = useCallback((items: InventoryItem[]) => {
+    setInventory(prev => {
+      let newItems = [...prev.items]
+      for (const item of items) {
+        newItems = addItemToInventory(newItems, item)
+      }
+      return { ...prev, items: newItems }
+    })
+  }, [])
+
   const handleRemoveFavorite = useCallback((spellId: string) => {
     setLearnedSpells(prev => prev.map(spell => {
       if (spell.id === spellId) {
@@ -429,6 +444,22 @@ export default function Home() {
             playerName={playerName}
             inventory={inventory}
             hasVisitedShop={hasVisitedShop}
+          />
+        )}
+
+        {currentLocation === 'cave' && (
+          <CaveScene
+            playerName={playerName}
+            learnedSpells={learnedSpells}
+            learnedPotions={learnedPotions}
+            currentMana={currentMana}
+            maxMana={maxMana}
+            inventory={inventory}
+            gameTime={gameTime}
+            onLeaveCave={() => setCurrentLocation('academy')}
+            onUpdateMana={setCurrentMana}
+            onGainGold={handleGainGold}
+            onGainItems={handleGainItems}
           />
         )}
 

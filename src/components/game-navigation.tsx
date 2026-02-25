@@ -9,7 +9,7 @@ import { InventoryPanel } from '@/components/inventory-panel'
 // TYPES
 // ============================================
 
-export type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom'
+export type GameLocation = 'academy' | 'shop' | 'dormitory' | 'common-room' | 'classroom' | 'cave'
 
 // Re-export inventory types and helpers for backward compatibility
 export type { InventoryItem, InventoryState }
@@ -59,6 +59,7 @@ export function NavigationSidebar({
     { id: 'shop', name: 'School Shop', icon: '🏪' },
     { id: 'classroom', name: 'Classrooms', icon: '📚' },
     { id: 'dormitory', name: 'Dormitory', icon: '🛏️' },
+    { id: 'cave', name: 'Caves', icon: '🏔️' },
   ]
 
   const classroomOptions = [
